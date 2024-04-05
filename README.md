@@ -54,6 +54,8 @@
   - [Prerequisites](#bangbang-prerequisites)
   - [Run Locally](#running-run-locally)
 - [Usage](#eyes-usage)
+  - [Access Swagger UI](#access-swagger-ui)
+  - [Build Docker Image](#build-docker-image)
 - [Roadmap](#compass-roadmap)
 - [Contributing](#wave-contributing)
   - [Code of Conduct](#scroll-code-of-conduct)
@@ -71,7 +73,8 @@
 ### :camera: Screenshots
 
 <div align="center">
-  <img src="https://github.com/DuckyMomo20012/go-todo/assets/64480713/8673949a-f7b5-4ff7-8352-61b0d70dade3" alt="screenshot" />
+  <img src="https://github.com/DuckyMomo20012/go-todo/assets/64480713/efa3b6cc-b6b1-4437-bb8e-30d65ef5cc1b" alt="swagger_ui" />
+  <i>Swagger UI</i>
 </div>
 
 <!-- TechStack -->
@@ -104,6 +107,7 @@
 ### :dart: Features
 
 - Basic CRUD operations.
+- Swagger UI for API documentation.
 
 <!-- Env Variables -->
 
@@ -124,6 +128,8 @@ To run this project, you will need to add the following environment variables fi
   - `DB_USER`: The user of the database. Default is `postgres`.
   - `DB_PASSWORD`: The password of the database. Default is `postgres`.
   - `DB_NAME`: The name of the database. Default is `task`.
+  - `CORS_ALLOW_ORIGIN`: The origin that is allowed to access the server.
+    Default is `*`.
 
 
 E.g:
@@ -138,6 +144,7 @@ DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=task
+CORS_ALLOW_ORIGIN=*
 ```
 
 You can also check out the file `internal/tasks/configs/cfg.env.example` to see
@@ -190,6 +197,10 @@ go run ./cmd/tasks/main.go
 <!-- Usage -->
 
 ## :eyes: Usage
+
+### Access Swagger UI
+
+Open your browser and go to `http://localhost:8081`.
 
 ### Build Docker Image
 
