@@ -25,6 +25,7 @@ func main() {
 	viper.SetDefault("PORT", "8080")
 	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_PORT", "5432")
+	viper.Set("CORS_ALLOW_ORIGINS", "*")
 
 	var config *configs.ServerConfig
 
