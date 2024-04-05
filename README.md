@@ -159,6 +159,7 @@ all required environment variables.
 ### :bangbang: Prerequisites
 
 - Go: `1.22.1`.
+- golangci-lint: `1.57.2`.
 
 <!-- Run Locally -->
 
@@ -209,6 +210,12 @@ Open your browser and go to `http://localhost:8081`.
 
 ```bash
 docker build -t go-todo -f ./docker/tasks/Dockerfile .
+```
+
+### Linting
+
+```bash
+make lint
 ```
 
 <!-- Roadmap -->
