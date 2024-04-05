@@ -1,6 +1,11 @@
 package server
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/spf13/viper"
+)
 
 func RunHttpServer(createHandler func(app *fiber.App)) {
 	apiRouter := fiber.New()
@@ -10,5 +15,5 @@ func RunHttpServer(createHandler func(app *fiber.App)) {
 	rootRouter.Mount("/api", apiRouter)
 	createHandler(apiRouter)
 
-	rootRouter.Listen(":8080")
+	rootRouter.Listen(fmt.Sprintf("%s:%s", viper.Get("HOST"), viper.Get("PORT")))
 }
