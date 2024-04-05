@@ -7,3 +7,12 @@ services:
       POSTGRES_DB: task
     ports:
       - "5432:5432"
+
+  swagger:
+    image: swaggerapi/swagger-ui:latest
+    ports:
+      - "8081:8080"
+    environment:
+      SWAGGER_JSON: /app/openapi/tasks.yaml
+    volumes:
+      - ./api:/app
