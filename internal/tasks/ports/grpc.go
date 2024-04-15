@@ -27,7 +27,7 @@ func (g GrpcServer) GetAllTasks(ctx context.Context, request *tasksv1.GetAllTask
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var response = make([]*tasksv1.Task, 0)
+	response := make([]*tasksv1.Task, 0)
 
 	for _, task := range tasks {
 		response = append(response, &tasksv1.Task{

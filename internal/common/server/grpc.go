@@ -11,9 +11,11 @@ import (
 
 func RunGRPCServer(registerServer func(server *grpc.Server)) {
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = "8080"
 	}
+
 	grpcEndpoint := fmt.Sprintf(":%s", port)
 
 	grpcServer := grpc.NewServer()
@@ -23,6 +25,7 @@ func RunGRPCServer(registerServer func(server *grpc.Server)) {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+
 	logrus.WithField("grpcEndpoint", grpcEndpoint).Info("Starting: gRPC Listener")
 	logrus.Fatal(grpcServer.Serve(listen))
 }

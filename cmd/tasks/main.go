@@ -12,6 +12,7 @@ import (
 	"github.com/DuckyMomo20012/go-todo/internal/tasks/ports"
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/lib/pq"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"xorm.io/xorm"
@@ -34,32 +35,32 @@ func main() {
 	var config *configs.ServerConfig
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Printf("Error reading config file, %s", err)
+		log.Error(fmt.Sprintf("Error reading config file, %s", err))
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		fmt.Printf("Error reading config file, %s", err)
+		log.Error(fmt.Sprintf("Error unmarshalling config, %s", err))
 	}
 
 	engine, err := xorm.NewEngine("postgres",
 		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-			config.DbHost,
-			config.DbPort,
-			config.DbUser,
-			config.DbPass,
-			config.DbName,
+			config.DBHost,
+			config.DBPort,
+			config.DBUser,
+			config.DBPass,
+			config.DBName,
 		))
-
 	if err != nil {
-		fmt.Printf("Error creating engine, %s", err)
+		log.Error(fmt.Sprintf("Error connecting to database, %s", err))
+
 		return
 	}
 
 	// NOTE: Sync database models
 	err = engine.Sync(new(app.Task))
-
 	if err != nil {
-		fmt.Printf("Error syncing database, %s", err)
+		log.Error(fmt.Sprintf("Error syncing database, %s", err))
+
 		return
 	}
 
@@ -72,9 +73,9 @@ func main() {
 		{
 			taskService := app.NewTaskService(taskRepository)
 
-			httpServer := ports.NewHttpServer(taskService)
+			httpServer := ports.NewHTTPServer(taskService)
 
-			server.RunHttpServer(func(app *fiber.App) {
+			server.RunHTTPServer(func(app *fiber.App) {
 				ports.RegisterHandlers(app, httpServer)
 			})
 		}
@@ -91,5 +92,4 @@ func main() {
 	default:
 		panic("Unsupported server type")
 	}
-
 }
