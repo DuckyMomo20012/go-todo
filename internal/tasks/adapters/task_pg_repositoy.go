@@ -38,7 +38,7 @@ func (p PgTaskRepository) Delete(_ context.Context, id string) error {
 	return err
 }
 
-func (p PgTaskRepository) GetById(_ context.Context, id string) (*app.Task, error) {
+func (p PgTaskRepository) GetByID(_ context.Context, id string) (*app.Task, error) {
 	var task app.Task
 
 	_, err := p.engine.ID(id).Get(&task)

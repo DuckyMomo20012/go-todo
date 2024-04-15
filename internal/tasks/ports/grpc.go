@@ -65,7 +65,7 @@ func (g GrpcServer) DeleteTask(ctx context.Context, request *tasksv1.DeleteTaskR
 }
 
 func (g GrpcServer) GetOneTask(ctx context.Context, request *tasksv1.GetOneTaskRequest) (*tasksv1.GetOneTaskResponse, error) {
-	task, err := g.taskRepository.GetById(ctx, request.Id)
+	task, err := g.taskRepository.GetByID(ctx, request.Id)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
