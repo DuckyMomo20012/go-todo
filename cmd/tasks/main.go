@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
+	tasksv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/tasks/v1"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/tasks/adapters"
 	"github.com/DuckyMomo20012/go-todo/internal/tasks/app"
@@ -11,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 	"xorm.io/xorm"
 )
 
@@ -26,6 +29,7 @@ func main() {
 	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_PORT", "5432")
 	viper.SetDefault("CORS_ALLOW_ORIGINS", "*")
+	viper.SetDefault("SERVER_TO_RUN", "http")
 
 	var config *configs.ServerConfig
 
@@ -61,11 +65,31 @@ func main() {
 
 	taskRepository := adapters.NewPgTaskRepository(engine)
 
-	taskService := app.NewTaskService(taskRepository)
+	serverType := strings.ToLower(viper.Get("SERVER_TO_RUN").(string))
 
-	httpServer := ports.NewHttpServer(taskService)
+	switch serverType {
+	case "http":
+		{
+			taskService := app.NewTaskService(taskRepository)
 
-	server.RunHttpServer(func(app *fiber.App) {
-		ports.RegisterHandlers(app, httpServer)
-	})
+			httpServer := ports.NewHttpServer(taskService)
+
+			server.RunHttpServer(func(app *fiber.App) {
+				ports.RegisterHandlers(app, httpServer)
+			})
+		}
+
+	case "grpc":
+		{
+			taskServer := ports.NewGrpcServer(taskRepository)
+
+			server.RunGRPCServer(func(server *grpc.Server) {
+				tasksv1.RegisterTaskServiceServer(server, taskServer)
+			})
+		}
+
+	default:
+		panic("Unsupported server type")
+	}
+
 }

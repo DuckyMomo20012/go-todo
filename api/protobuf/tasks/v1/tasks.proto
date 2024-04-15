@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package api.protobuf.tasks.v1;
+
+service TaskService {
+  rpc GetAllTasks(GetAllTasksRequest) returns (GetAllTasksResponse);
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+  rpc GetOneTask(GetOneTaskRequest) returns (GetOneTaskResponse);
+  rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+}
+
+message Task {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+}
+
+message GetAllTasksRequest {
+
+}
+
+
+message GetAllTasksResponse {
+  repeated Task tasks = 1;
+}
+
+message CreateTaskRequest {
+  string title = 1;
+  string description = 2;
+}
+
+message CreateTaskResponse {
+
+}
+
+message DeleteTaskRequest {
+  string id = 1;
+}
+
+message DeleteTaskResponse {
+
+}
+
+message GetOneTaskRequest {
+  string id = 1;
+}
+
+message GetOneTaskResponse {
+  Task task = 1;
+}
+
+message UpdateTaskRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+}
+
+message UpdateTaskResponse {
+
+}
+
+
