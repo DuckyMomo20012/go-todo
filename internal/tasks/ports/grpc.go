@@ -21,13 +21,13 @@ func NewGrpcServer(taskRepository app.TaskRepository) GrpcServer {
 	}
 }
 
-func (g GrpcServer) GetAllTasks(ctx context.Context, request *tasksv1.GetAllTasksRequest) (*tasksv1.GetAllTasksResponse, error) {
+func (g GrpcServer) GetAllTasks(ctx context.Context, _ *tasksv1.GetAllTasksRequest) (*tasksv1.GetAllTasksResponse, error) {
 	tasks, err := g.taskRepository.GetAll(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var response = make([]*tasksv1.Task, 0)
+	response := make([]*tasksv1.Task, 0)
 
 	for _, task := range tasks {
 		response = append(response, &tasksv1.Task{
@@ -65,7 +65,7 @@ func (g GrpcServer) DeleteTask(ctx context.Context, request *tasksv1.DeleteTaskR
 }
 
 func (g GrpcServer) GetOneTask(ctx context.Context, request *tasksv1.GetOneTaskRequest) (*tasksv1.GetOneTaskResponse, error) {
-	task, err := g.taskRepository.GetById(ctx, request.Id)
+	task, err := g.taskRepository.GetByID(ctx, request.Id)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}

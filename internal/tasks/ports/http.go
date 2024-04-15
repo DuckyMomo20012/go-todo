@@ -6,23 +6,23 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-type HttpServer struct {
+type HTTPServer struct {
 	service *app.TaskService
 }
 
-func NewHttpServer(service *app.TaskService) HttpServer {
-	return HttpServer{
+func NewHTTPServer(service *app.TaskService) HTTPServer {
+	return HTTPServer{
 		service: service,
 	}
 }
 
-func (h HttpServer) GetAllTasks(c *fiber.Ctx) error {
+func (h HTTPServer) GetAllTasks(c *fiber.Ctx) error {
 	tasks, err := h.service.GetAllTasks(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	var response = make([]Task, 0)
+	response := make([]Task, 0)
 
 	for _, task := range tasks {
 		response = append(response, Task{
@@ -32,12 +32,15 @@ func (h HttpServer) GetAllTasks(c *fiber.Ctx) error {
 		})
 	}
 
-	c.Status(fiber.StatusOK).JSON(response)
+	err = c.Status(fiber.StatusOK).JSON(response)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	return nil
 }
 
-func (h HttpServer) CreateTask(c *fiber.Ctx) error {
+func (h HTTPServer) CreateTask(c *fiber.Ctx) error {
 	var request CreateTaskJSONRequestBody
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
@@ -48,42 +51,54 @@ func (h HttpServer) CreateTask(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	c.SendStatus(fiber.StatusCreated)
+	err = c.SendStatus(fiber.StatusCreated)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	return nil
 }
 
-func (h HttpServer) DeleteTask(c *fiber.Ctx, id openapi_types.UUID) error {
+func (h HTTPServer) DeleteTask(c *fiber.Ctx, id openapi_types.UUID) error {
 	err := h.service.DeleteTask(c.Context(), id.String())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	c.SendStatus(fiber.StatusNoContent)
+	err = c.SendStatus(fiber.StatusNoContent)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	return nil
 }
 
-func (h HttpServer) GetOneTask(c *fiber.Ctx, id openapi_types.UUID) error {
+func (h HTTPServer) GetOneTask(c *fiber.Ctx, id openapi_types.UUID) error {
 	task, err := h.service.GetOneTask(c.Context(), id.String())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	if task == nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "task not found"})
+		err := c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "task not found"})
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
 	}
 
-	c.Status(fiber.StatusOK).JSON(Task{
+	err = c.Status(fiber.StatusOK).JSON(Task{
 		Id:          task.UUID,
 		Title:       &task.Title,
 		Description: &task.Description,
 	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	return nil
 }
 
-func (h HttpServer) UpdateTask(c *fiber.Ctx, id openapi_types.UUID) error {
+func (h HTTPServer) UpdateTask(c *fiber.Ctx, id openapi_types.UUID) error {
 	var request UpdateTaskJSONRequestBody
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
@@ -100,7 +115,10 @@ func (h HttpServer) UpdateTask(c *fiber.Ctx, id openapi_types.UUID) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	c.SendStatus(fiber.StatusOK)
+	err = c.SendStatus(fiber.StatusOK)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	return nil
 }

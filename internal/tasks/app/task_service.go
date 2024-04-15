@@ -37,7 +37,7 @@ func (c TaskService) DeleteTask(ctx context.Context, uuid string) error {
 }
 
 func (c TaskService) GetOneTask(ctx context.Context, uuid string) (*Task, error) {
-	return c.repo.GetById(ctx, uuid)
+	return c.repo.GetByID(ctx, uuid)
 }
 
 func (c TaskService) UpdateTask(ctx context.Context, uuid string, task *Task) error {

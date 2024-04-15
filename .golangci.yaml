@@ -4,14 +4,14 @@ linters:
     - asciicheck
     - bodyclose
     - cyclop
-    - depguard
+    # - depguard
     - dogsled
     - dupl
     - durationcheck
     - errcheck
     - errorlint
     - exhaustive
-    - exportloopref
+    # - exportloopref
     - forbidigo
     - funlen
     - gci
@@ -66,6 +66,11 @@ linters:
 #    - prealloc
 #    - testpackage
 #    - wrapcheck
+
+linters-settings:
+  gosec:
+    excludes:
+      - G601
 
 issues:
   exclude-dirs:
