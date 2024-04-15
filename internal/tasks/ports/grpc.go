@@ -21,7 +21,7 @@ func NewGrpcServer(taskRepository app.TaskRepository) GrpcServer {
 	}
 }
 
-func (g GrpcServer) GetAllTasks(ctx context.Context, request *tasksv1.GetAllTasksRequest) (*tasksv1.GetAllTasksResponse, error) {
+func (g GrpcServer) GetAllTasks(ctx context.Context, _ *tasksv1.GetAllTasksRequest) (*tasksv1.GetAllTasksResponse, error) {
 	tasks, err := g.taskRepository.GetAll(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
