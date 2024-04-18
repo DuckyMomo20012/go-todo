@@ -48,7 +48,7 @@ linters:
     - sqlclosecheck
     - staticcheck
     - structcheck
-    - stylecheck
+    # - stylecheck
     - tparallel
     - thelper
     - typecheck
@@ -71,6 +71,12 @@ linters-settings:
   gosec:
     excludes:
       - G601
+  revive:
+    rules:
+      - name: var-naming
+        severity: warning
+        arguments:
+          - ["ID"] # AllowList
 
 issues:
   exclude-dirs:
