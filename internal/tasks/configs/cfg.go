@@ -9,5 +9,5 @@ type ServerConfig struct {
 	DBPass           string `mapstructure:"DB_PASSWORD"`
 	DBName           string `mapstructure:"DB_NAME"`
 	CorsAllowOrigins string `mapstructure:"CORS_ALLOW_ORIGINS"`
-	ServerToRun      string `mapstructure:"SERVER_TO_RUN"`
+	ServerProtocol   string `mapstructure:"SERVER_PROTOCOL"`
 }
