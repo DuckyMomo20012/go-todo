@@ -118,10 +118,11 @@
 
 To run this project, you will need to add the following environment variables file:
 
-- `internal/tasks/configs/cfg.env`:
+- `internal/tasks/configs/.env`:
 
   - `HOST`: The host of the server. Default is `localhost`.
   - `PORT`: The port of the server. Default is `8080`.
+  - `SERVER_PROTOCOL`: The protocol of the server. Default is `http`.
 
   - `DB_HOST`: The host of the Postgres database. Default is `localhost`.
   - `DB_PORT`: The port of the database. Default is `5432`.
@@ -136,18 +137,19 @@ E.g:
 
 ```
 # internal/tasks/configs/cfg.env
-HOST=localhost
+HOST=0.0.0.0
 PORT=8080
+SERVER_PROTOCOL=http
 
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=task
-CORS_ALLOW_ORIGIN=*
+CORS_ALLOW_ORIGINS=*
 ```
 
-You can also check out the file `internal/tasks/configs/cfg.env.example` to see
+You can also check out the file `internal/tasks/configs/.env.example` to see
 all required environment variables.
 
 <!-- Getting Started -->
@@ -222,7 +224,7 @@ make lint
 
 ## :compass: Roadmap
 
-- [ ] gRPC support.
+- [x] gRPC support.
 
 <!-- Contributing -->
 
