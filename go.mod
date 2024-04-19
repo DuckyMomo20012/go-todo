@@ -7,10 +7,12 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/golangci/golangci-lint v1.57.2
 	github.com/google/uuid v1.6.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
 	github.com/lib/pq v1.10.9
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/spf13/viper v1.18.2
 	golang.org/x/tools v0.19.0
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	honnef.co/go/tools v0.4.7
 	mvdan.cc/gofumpt v0.6.0
 	xorm.io/xorm v1.3.9
@@ -172,6 +174,8 @@ require (
 	golang.org/x/exp/typeparams v0.0.0-20240314144324-c7f7c6466f7f // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
+	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240227224415-6ceb2ff114de // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	mvdan.cc/unparam v0.0.0-20240104100049-c549a3470d14 // indirect
 )
