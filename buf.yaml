@@ -1,7 +1,10 @@
 version: v1
+name: buf.build/DuckyMomo20012/go-todo
 breaking:
   use:
     - FILE
 lint:
   use:
     - DEFAULT
+deps:
+  - buf.build/googleapis/googleapis
