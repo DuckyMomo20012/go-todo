@@ -19,11 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TaskService_GetAllTasks_FullMethodName = "/api.protobuf.tasks.v1.TaskService/GetAllTasks"
-	TaskService_CreateTask_FullMethodName  = "/api.protobuf.tasks.v1.TaskService/CreateTask"
-	TaskService_DeleteTask_FullMethodName  = "/api.protobuf.tasks.v1.TaskService/DeleteTask"
-	TaskService_GetOneTask_FullMethodName  = "/api.protobuf.tasks.v1.TaskService/GetOneTask"
-	TaskService_UpdateTask_FullMethodName  = "/api.protobuf.tasks.v1.TaskService/UpdateTask"
+	TaskService_GetAllTasks_FullMethodName = "/tasks.v1.TaskService/GetAllTasks"
+	TaskService_CreateTask_FullMethodName  = "/tasks.v1.TaskService/CreateTask"
+	TaskService_DeleteTask_FullMethodName  = "/tasks.v1.TaskService/DeleteTask"
+	TaskService_GetOneTask_FullMethodName  = "/tasks.v1.TaskService/GetOneTask"
+	TaskService_UpdateTask_FullMethodName  = "/tasks.v1.TaskService/UpdateTask"
 )
 
 // TaskServiceClient is the client API for TaskService service.
@@ -228,7 +228,7 @@ func _TaskService_UpdateTask_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TaskService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.protobuf.tasks.v1.TaskService",
+	ServiceName: "tasks.v1.TaskService",
 	HandlerType: (*TaskServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
