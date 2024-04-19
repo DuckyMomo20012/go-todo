@@ -1,0 +1,3 @@
+brew "sqlfluff" # SQL linter & formatter
+# NOTE: clang-format is not automatically linked, so we need to do it manually
+brew "clang-format", link: true # For protobuf formatting
