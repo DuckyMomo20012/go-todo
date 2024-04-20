@@ -1,14 +1,20 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "tasks/v1/tasks.proto",
-    "version": "version not set"
+    "title": "Task API",
+    "description": "A simple API to manage tasks",
+    "version": "1.0.0",
+    "contact": {
+      "name": "DuckyMomo20012",
+      "url": "https://github.com/DuckyMomo20012"
+    }
   },
   "tags": [
     {
       "name": "TaskService"
     }
   ],
+  "basePath": "/api",
   "consumes": [
     "application/json"
   ],

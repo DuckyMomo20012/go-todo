@@ -3,35 +3,45 @@ syntax = "proto3";
 package tasks.v1;
 
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
+// Ref:
+// https://grpc-ecosystem.github.io/grpc-gateway/docs/development/grpc-gateway_v2_migration_guide/
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "1.0.0";
+    title: "Task API";
+    description: "A simple API to manage tasks";
+    contact: {
+      name: "DuckyMomo20012";
+      url: "https://github.com/DuckyMomo20012";
+    };
+  };
+  // NOTE: This is default mount point in internal/common/server/gateway.go
+  base_path: "/api"
+};
 service TaskService {
   rpc GetAllTasks(GetAllTasksRequest) returns (GetAllTasksResponse) {
-    option (google.api.http) = {
-      get : "/tasks"
-    };
-  };
+    option (google.api.http) = {get: "/tasks"};
+  }
   rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse) {
     option (google.api.http) = {
-      post : "/tasks"
-      body : "*"
+      post: "/tasks"
+      body: "*"
     };
-  };
+  }
   rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse) {
-    option (google.api.http) = {
-      delete : "/tasks/{id}"
-    };
-  };
+    option (google.api.http) = {delete: "/tasks/{id}"};
+  }
   rpc GetOneTask(GetOneTaskRequest) returns (GetOneTaskResponse) {
-    option (google.api.http) = {
-      get : "/tasks/{id}"
-    };
-  };
+    option (google.api.http) = {get: "/tasks/{id}"};
+  }
   rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse) {
     option (google.api.http) = {
-      put : "/tasks/{id}"
-      body : "*"
+      put: "/tasks/{id}"
+      body: "*"
     };
-  };
+  }
 }
 
 message Task {
@@ -42,7 +52,9 @@ message Task {
 
 message GetAllTasksRequest {}
 
-message GetAllTasksResponse { repeated Task tasks = 1; }
+message GetAllTasksResponse {
+  repeated Task tasks = 1;
+}
 
 message CreateTaskRequest {
   string title = 1;
@@ -51,13 +63,19 @@ message CreateTaskRequest {
 
 message CreateTaskResponse {}
 
-message DeleteTaskRequest { string id = 1; }
+message DeleteTaskRequest {
+  string id = 1;
+}
 
 message DeleteTaskResponse {}
 
-message GetOneTaskRequest { string id = 1; }
+message GetOneTaskRequest {
+  string id = 1;
+}
 
-message GetOneTaskResponse { Task task = 1; }
+message GetOneTaskResponse {
+  Task task = 1;
+}
 
 message UpdateTaskRequest {
   string id = 1;
