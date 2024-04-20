@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	tasksv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/tasks/v1"
-	cfg "github.com/DuckyMomo20012/go-todo/internal/common/lib/config"
+	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/gateway/configs"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"

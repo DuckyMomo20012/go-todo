@@ -20,6 +20,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   // NOTE: This is default mount point in internal/common/server/gateway.go
   base_path: "/api"
 };
+
 service TaskService {
   rpc GetAllTasks(GetAllTasksRequest) returns (GetAllTasksResponse) {
     option (google.api.http) = {get: "/tasks"};
