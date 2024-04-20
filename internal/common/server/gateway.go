@@ -22,7 +22,7 @@ func RunGatewayServer(registerServer func(ctx context.Context, mux *runtime.Serv
 	defer cancel()
 
 	// Register gRPC server endpoint
-	// Note: Make sure the gRPC server is running properly and accessible
+	// NOTE: Make sure the gRPC server is running properly and accessible
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
@@ -34,7 +34,7 @@ func RunGatewayServer(registerServer func(ctx context.Context, mux *runtime.Serv
 	// Ref: https://github.com/grpc-ecosystem/grpc-gateway/issues/769#issuecomment-478307237
 	r := chi.NewRouter()
 	r.HandleFunc("/api/*", func(w http.ResponseWriter, r *http.Request) {
-		// gateway is generated to match for /v1/ and not /api/v1
+		// Gateway is generated to match for /v1/ and not /api/v1
 		// we could update the gateway proto to match for /api/v1 but
 		// it shouldn't care where it's mounted to, hence we just rewrite the path here
 		r.URL.Path = strings.ReplaceAll(r.URL.Path, "/api", "")
