@@ -9,6 +9,8 @@ managed:
     # Remove `except` field if googleapis is not used
     except:
       - buf.build/googleapis/googleapis
+      # NOTE: Set this so the import not resolve to current repo
+      - buf.build/grpc-ecosystem/grpc-gateway
 plugins:
   - plugin: buf.build/grpc/go:v1.3.0
     out: ../../internal/common/genproto
