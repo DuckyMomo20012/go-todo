@@ -1,15 +1,15 @@
-package tasks
+package task
 
 import (
 	"fmt"
 
-	tasksv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/tasks/v1"
+	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
-	"github.com/DuckyMomo20012/go-todo/internal/tasks/adapters"
-	"github.com/DuckyMomo20012/go-todo/internal/tasks/app"
-	"github.com/DuckyMomo20012/go-todo/internal/tasks/configs"
-	"github.com/DuckyMomo20012/go-todo/internal/tasks/ports"
+	"github.com/DuckyMomo20012/go-todo/internal/task/adapters"
+	"github.com/DuckyMomo20012/go-todo/internal/task/app"
+	"github.com/DuckyMomo20012/go-todo/internal/task/configs"
+	"github.com/DuckyMomo20012/go-todo/internal/task/ports"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -19,24 +19,24 @@ import (
 )
 
 func NewTaskCmd() *cobra.Command {
-	tasksCmd := &cobra.Command{
-		Use:   "tasks",
-		Short: "Tasks server commands.",
-		Long:  "Tasks server commands.",
+	taskCmd := &cobra.Command{
+		Use:   "task",
+		Short: "Task server commands.",
+		Long:  "Task server commands.",
 	}
 
 	startCmd := &cobra.Command{
 		Use:   "start",
-		Short: "Start the tasks server.",
-		Long:  "Start the tasks server. This will start the gRPC server for the tasks service.",
+		Short: "Start the task server.",
+		Long:  "Start the task server. This will start the gRPC server for the task service.",
 		Run: func(cmd *cobra.Command, args []string) {
 			startTaskServer()
 		},
 	}
 
-	tasksCmd.AddCommand(startCmd)
+	taskCmd.AddCommand(startCmd)
 
-	return tasksCmd
+	return taskCmd
 }
 
 func startTaskServer() {
@@ -47,7 +47,7 @@ func startTaskServer() {
 
 	var config configs.ServerConfig
 
-	if err := cfg.LoadConfig(&config, "./internal/tasks/configs"); err != nil {
+	if err := cfg.LoadConfig(&config, "./internal/task/configs"); err != nil {
 		log.Error(fmt.Sprintf("Error loading config, %s", err))
 	}
 
@@ -77,6 +77,6 @@ func startTaskServer() {
 	taskServer := ports.NewGrpcServer(taskRepository)
 
 	server.RunGRPCServer(func(server *grpc.Server) {
-		tasksv1.RegisterTaskServiceServer(server, taskServer)
+		taskv1.RegisterTaskServiceServer(server, taskServer)
 	})
 }

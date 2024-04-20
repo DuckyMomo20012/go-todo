@@ -3,8 +3,8 @@ package ports
 import (
 	"context"
 
-	tasksv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/tasks/v1"
-	"github.com/DuckyMomo20012/go-todo/internal/tasks/app"
+	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
+	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,7 +12,7 @@ import (
 
 type GrpcServer struct {
 	taskRepository app.TaskRepository
-	tasksv1.UnimplementedTaskServiceServer
+	taskv1.UnimplementedTaskServiceServer
 }
 
 func NewGrpcServer(taskRepository app.TaskRepository) GrpcServer {
@@ -21,28 +21,28 @@ func NewGrpcServer(taskRepository app.TaskRepository) GrpcServer {
 	}
 }
 
-func (g GrpcServer) GetAllTasks(ctx context.Context, _ *tasksv1.GetAllTasksRequest) (*tasksv1.GetAllTasksResponse, error) {
+func (g GrpcServer) GetAllTasks(ctx context.Context, _ *taskv1.GetAllTasksRequest) (*taskv1.GetAllTasksResponse, error) {
 	tasks, err := g.taskRepository.GetAll(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	response := make([]*tasksv1.Task, 0)
+	response := make([]*taskv1.Task, 0)
 
 	for _, task := range tasks {
-		response = append(response, &tasksv1.Task{
+		response = append(response, &taskv1.Task{
 			Id:          task.UUID,
 			Title:       task.Title,
 			Description: task.Description,
 		})
 	}
 
-	return &tasksv1.GetAllTasksResponse{
+	return &taskv1.GetAllTasksResponse{
 		Tasks: response,
 	}, nil
 }
 
-func (g GrpcServer) CreateTask(ctx context.Context, request *tasksv1.CreateTaskRequest) (*tasksv1.CreateTaskResponse, error) {
+func (g GrpcServer) CreateTask(ctx context.Context, request *taskv1.CreateTaskRequest) (*taskv1.CreateTaskResponse, error) {
 	err := g.taskRepository.Create(ctx, &app.Task{
 		UUID:        uuid.New().String(),
 		Title:       request.Title,
@@ -52,26 +52,26 @@ func (g GrpcServer) CreateTask(ctx context.Context, request *tasksv1.CreateTaskR
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	return &tasksv1.CreateTaskResponse{}, nil
+	return &taskv1.CreateTaskResponse{}, nil
 }
 
-func (g GrpcServer) DeleteTask(ctx context.Context, request *tasksv1.DeleteTaskRequest) (*tasksv1.DeleteTaskResponse, error) {
+func (g GrpcServer) DeleteTask(ctx context.Context, request *taskv1.DeleteTaskRequest) (*taskv1.DeleteTaskResponse, error) {
 	err := g.taskRepository.Delete(ctx, request.Id)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
-	return &tasksv1.DeleteTaskResponse{}, nil
+	return &taskv1.DeleteTaskResponse{}, nil
 }
 
-func (g GrpcServer) GetOneTask(ctx context.Context, request *tasksv1.GetOneTaskRequest) (*tasksv1.GetOneTaskResponse, error) {
+func (g GrpcServer) GetOneTask(ctx context.Context, request *taskv1.GetOneTaskRequest) (*taskv1.GetOneTaskResponse, error) {
 	task, err := g.taskRepository.GetByID(ctx, request.Id)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
-	return &tasksv1.GetOneTaskResponse{
-		Task: &tasksv1.Task{
+	return &taskv1.GetOneTaskResponse{
+		Task: &taskv1.Task{
 			Id:          task.UUID,
 			Title:       task.Title,
 			Description: task.Description,
@@ -79,7 +79,7 @@ func (g GrpcServer) GetOneTask(ctx context.Context, request *tasksv1.GetOneTaskR
 	}, nil
 }
 
-func (g GrpcServer) UpdateTask(ctx context.Context, request *tasksv1.UpdateTaskRequest) (*tasksv1.UpdateTaskResponse, error) {
+func (g GrpcServer) UpdateTask(ctx context.Context, request *taskv1.UpdateTaskRequest) (*taskv1.UpdateTaskResponse, error) {
 	err := g.taskRepository.Update(ctx, request.Id, &app.Task{
 		Title:       request.Title,
 		Description: request.Description,
@@ -88,5 +88,5 @@ func (g GrpcServer) UpdateTask(ctx context.Context, request *tasksv1.UpdateTaskR
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	return &tasksv1.UpdateTaskResponse{}, nil
+	return &taskv1.UpdateTaskResponse{}, nil
 }

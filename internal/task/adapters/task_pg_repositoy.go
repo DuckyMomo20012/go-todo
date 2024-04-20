@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 
-	"github.com/DuckyMomo20012/go-todo/internal/tasks/app"
+	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"xorm.io/xorm"
 )
 
