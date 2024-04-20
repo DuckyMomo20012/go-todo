@@ -1,4 +1,4 @@
-package main
+package tasks
 
 import (
 	"fmt"
@@ -12,12 +12,34 @@ import (
 	"github.com/DuckyMomo20012/go-todo/internal/tasks/ports"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"xorm.io/xorm"
 )
 
-func main() {
+func NewTaskCmd() *cobra.Command {
+	tasksCmd := &cobra.Command{
+		Use:   "tasks",
+		Short: "Tasks server commands.",
+		Long:  "Tasks server commands.",
+	}
+
+	startCmd := &cobra.Command{
+		Use:   "start",
+		Short: "Start the tasks server.",
+		Long:  "Start the tasks server. This will start the gRPC server for the tasks service.",
+		Run: func(cmd *cobra.Command, args []string) {
+			startTaskServer()
+		},
+	}
+
+	tasksCmd.AddCommand(startCmd)
+
+	return tasksCmd
+}
+
+func startTaskServer() {
 	viper.SetDefault("HOST", "0.0.0.0")
 	viper.SetDefault("PORT", "8080")
 	viper.SetDefault("DB_HOST", "localhost")
