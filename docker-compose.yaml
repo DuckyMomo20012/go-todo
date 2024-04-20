@@ -13,6 +13,6 @@ services:
     ports:
       - "8082:8080"
     environment:
-      SWAGGER_JSON: /app/openapi/tasks/v1/tasks.swagger.json
+      SWAGGER_JSON: /app/openapi/task/v1/task.swagger.json
     volumes:
       - ./api:/app

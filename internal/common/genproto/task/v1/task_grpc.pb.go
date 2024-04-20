@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: tasks/v1/tasks.proto
+// source: task/v1/task.proto
 
-package tasksv1
+package taskv1
 
 import (
 	context "context"
@@ -19,11 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TaskService_GetAllTasks_FullMethodName = "/tasks.v1.TaskService/GetAllTasks"
-	TaskService_CreateTask_FullMethodName  = "/tasks.v1.TaskService/CreateTask"
-	TaskService_DeleteTask_FullMethodName  = "/tasks.v1.TaskService/DeleteTask"
-	TaskService_GetOneTask_FullMethodName  = "/tasks.v1.TaskService/GetOneTask"
-	TaskService_UpdateTask_FullMethodName  = "/tasks.v1.TaskService/UpdateTask"
+	TaskService_GetAllTasks_FullMethodName = "/task.v1.TaskService/GetAllTasks"
+	TaskService_CreateTask_FullMethodName  = "/task.v1.TaskService/CreateTask"
+	TaskService_DeleteTask_FullMethodName  = "/task.v1.TaskService/DeleteTask"
+	TaskService_GetOneTask_FullMethodName  = "/task.v1.TaskService/GetOneTask"
+	TaskService_UpdateTask_FullMethodName  = "/task.v1.TaskService/UpdateTask"
 )
 
 // TaskServiceClient is the client API for TaskService service.
@@ -228,7 +228,7 @@ func _TaskService_UpdateTask_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TaskService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "tasks.v1.TaskService",
+	ServiceName: "task.v1.TaskService",
 	HandlerType: (*TaskServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -253,5 +253,5 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "tasks/v1/tasks.proto",
+	Metadata: "task/v1/task.proto",
 }

@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	tasksv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/tasks/v1"
+	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/gateway/configs"
@@ -52,7 +52,7 @@ func startGatewayServer() {
 
 	err := server.RunGatewayServer(func(ctx context.Context, mux *runtime.ServeMux, opts []grpc.DialOption) error {
 		err := multierr.Combine(
-			tasksv1.RegisterTaskServiceHandlerFromEndpoint(ctx, mux, *taskServerEndpoint, opts),
+			taskv1.RegisterTaskServiceHandlerFromEndpoint(ctx, mux, *taskServerEndpoint, opts),
 		)
 		if err != nil {
 			return err

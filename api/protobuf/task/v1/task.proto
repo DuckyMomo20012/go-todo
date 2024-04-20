@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package tasks.v1;
+package task.v1;
 
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";

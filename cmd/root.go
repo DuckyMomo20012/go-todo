@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/DuckyMomo20012/go-todo/cmd/gateway"
-	"github.com/DuckyMomo20012/go-todo/cmd/tasks"
+	"github.com/DuckyMomo20012/go-todo/cmd/task"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ func NewRootCmd() *cobra.Command {
 
 func Execute() {
 	rootCmd := NewRootCmd()
-	taskCmds := tasks.NewTaskCmd()
+	taskCmds := task.NewTaskCmd()
 	gatewayCmd := gateway.NewGatewayCmd()
 
 	rootCmd.AddCommand(taskCmds)
