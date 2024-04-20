@@ -46,7 +46,7 @@ func RunGatewayServer(registerServer func(ctx context.Context, mux *runtime.Serv
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%v", viper.Get("PORT")),
-		Handler:      mux,
+		Handler:      r,
 		ReadTimeout:  time.Second * timeoutSeconds, // Set the read timeout to 10 seconds
 		WriteTimeout: time.Second * timeoutSeconds, // Set the write timeout to 10 seconds
 	}
