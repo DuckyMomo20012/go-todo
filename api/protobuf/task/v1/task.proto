@@ -10,8 +10,8 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     version: "1.0.0";
-    title: "Task API";
-    description: "A simple API to manage tasks";
+    title: "Go Todo task API";
+    description: "Task server API";
     contact: {
       name: "DuckyMomo20012";
       url: "https://github.com/DuckyMomo20012";
