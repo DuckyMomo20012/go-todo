@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -28,6 +30,16 @@ func RunGatewayServer(registerServer func(ctx context.Context, mux *runtime.Serv
 	if err != nil {
 		return err
 	}
+
+	// Ref: https://github.com/grpc-ecosystem/grpc-gateway/issues/769#issuecomment-478307237
+	r := chi.NewRouter()
+	r.HandleFunc("/api/*", func(w http.ResponseWriter, r *http.Request) {
+		// gateway is generated to match for /v1/ and not /api/v1
+		// we could update the gateway proto to match for /api/v1 but
+		// it shouldn't care where it's mounted to, hence we just rewrite the path here
+		r.URL.Path = strings.ReplaceAll(r.URL.Path, "/api", "")
+		mux.ServeHTTP(w, r)
+	})
 
 	// Create an HTTP server with desired timeouts
 	const timeoutSeconds = 10
