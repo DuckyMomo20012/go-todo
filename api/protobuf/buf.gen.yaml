@@ -19,3 +19,8 @@ plugins:
     out: ../../internal/common/genproto
     opt:
       - paths=source_relative
+  - plugin: buf.build/grpc-ecosystem/gateway:v2.19.1
+    out: ../../internal/common/genproto
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
