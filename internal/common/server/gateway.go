@@ -44,14 +44,17 @@ func RunGatewayServer(registerServer func(ctx context.Context, mux *runtime.Serv
 	// Create an HTTP server with desired timeouts
 	const timeoutSeconds = 10
 
+	address := fmt.Sprintf("%v:%v", viper.Get("HOST"), viper.Get("PORT"))
+
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%v", viper.Get("PORT")),
+		Addr:         address,
 		Handler:      r,
 		ReadTimeout:  time.Second * timeoutSeconds, // Set the read timeout to 10 seconds
 		WriteTimeout: time.Second * timeoutSeconds, // Set the write timeout to 10 seconds
 	}
 
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
-	log.WithField("port", viper.Get("PORT")).Info("Starting: HTTP Listener")
+	log.WithField("address", address).Info("Starting: HTTP Listener")
+
 	return server.ListenAndServe()
 }
