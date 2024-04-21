@@ -7,12 +7,76 @@ services:
       POSTGRES_DB: task
     ports:
       - "5432:5432"
+    networks:
+      - go-todo-net
+    healthcheck:
+      test: pg_isready -U postgres -d task
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
-  swagger:
-    image: swaggerapi/swagger-ui:latest
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    tty: true
     ports:
-      - "8082:8080"
+      - 80:80
+      - 443:443
+    volumes:
+      # nginx config
+      - ./docker/nginx:/etc/nginx/conf.d
+    restart: always
+    networks:
+      - go-todo-net
+
+  swagger-service:
+    image: swaggerapi/swagger-ui:latest
+    expose:
+      - "8080"
     environment:
       SWAGGER_JSON: /app/openapi/task/v1/task.swagger.json
     volumes:
       - ./api:/app
+    networks:
+      - go-todo-net
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: "./docker/go-todo/Dockerfile"
+    expose:
+      - "8081"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8081"
+
+      TASK_SERVER_ADDRESS: "task-service:9000"
+    command: ["gateway", "start"]
+    networks:
+      - go-todo-net
+
+  task-service:
+    build:
+      context: .
+      dockerfile: "./docker/go-todo/Dockerfile"
+    expose:
+      - "9000"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "9000"
+
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: task
+    command: ["task", "start"]
+    networks:
+      - go-todo-net
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  go-todo-net:
+    driver: bridge
