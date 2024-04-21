@@ -12,4 +12,4 @@ WORKDIR /app
 
 COPY --from=builder ./app .
 
-ENTRYPOINT ["go-todo"]
+ENTRYPOINT ["./go-todo"]
