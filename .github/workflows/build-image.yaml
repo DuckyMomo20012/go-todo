@@ -35,4 +35,4 @@ jobs:
           # package settings in "Manage Actions access" tab
           image_name: ${{ github.repository }} # it will be lowercased internally
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          dockerfile: ./go-todo/Dockerfile
+          dockerfile: ./docker/go-todo/Dockerfile
