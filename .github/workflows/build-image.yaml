@@ -1,0 +1,38 @@
+name: Build and publish a Docker image to ghcr.io
+on:
+  # publish on releases, e.g. v2.1.13 (image tagged as "2.1.13" - "v" prefix is removed)
+  release:
+    types: [published]
+
+  # NOTE: Triggering on pull requests to test the workflow, by opening a PR and
+  # pushing to it, the workflow will be automatically triggered
+  # pull_request:
+
+  # publish on pushes to the main branch (image tagged as "latest")
+  push:
+    branches:
+      - main
+
+jobs:
+  docker_publish:
+    runs-on: "ubuntu-22.04"
+
+    # NOTE: We need to grant access to the package registry to write packages
+    # NOTE: We also need to grant access to the repository to read the code
+    # because we manually set the permissions for the token
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # https://github.com/marketplace/actions/push-to-ghcr
+      - name: Build and publish go-todo image to ghcr.io
+        uses: macbre/push-to-ghcr@master
+        with:
+          # NOTE: Remember to add "go-todo" repository with role "Write" to the
+          # package settings in "Manage Actions access" tab
+          image_name: ${{ github.repository }} # it will be lowercased internally
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: ./go-todo/Dockerfile
