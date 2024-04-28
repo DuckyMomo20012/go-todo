@@ -53,6 +53,7 @@
 - [Getting Started](#toolbox-getting-started)
   - [Prerequisites](#bangbang-prerequisites)
   - [Run Locally](#running-run-locally)
+  - [Running Tests](#test_tube-running-tests)
 - [Usage](#eyes-usage)
   - [Access Swagger UI](#access-swagger-ui)
   - [Build Docker Image](#build-docker-image)
@@ -74,7 +75,7 @@
 ### :camera: Screenshots
 
 <div align="center">
-  <img src="https://github.com/DuckyMomo20012/go-todo/assets/64480713/d5e5d0fb-0be0-45ba-9a9f-ade89b1d46a3" alt="swagger_ui" />
+  <img src="https://github.com/DuckyMomo20012/go-todo/assets/64480713/911e6a3e-28bb-42b1-8653-4dd99e1e31c2" alt="swagger_ui" />
   <i>Swagger UI</i>
 </div>
 
@@ -186,17 +187,15 @@ file:
   All required `brew` tools is placed in `internal/tools/Brewfile`:
 
   ```bash
-  brew bundle --file=internal/tools/Brewfile
+  make download-deps
   ```
 
 - Go tools:
 
-  All required Go tools is placed in `internal/tools/tools.go`. Note that you
-  don't have to install it manually, because it will be installed automatically
-  when you run the command below:
+  All required Go tools is placed in `internal/tools/tools.go`:
 
   ```bash
-  go mod download
+  make download-deps
   ```
 
 > [!NOTE]
@@ -233,8 +232,30 @@ docker-compose up -d
 Start the server:
 
 ```bash
-go run ./main.go
+go run ./main.go gateway start
+
+go run ./main.go task start
 ```
+
+Or with [wgo](https://github.com/bokwoon95/wgo) for live reload:
+
+```bash
+wgo run ./main.go gateway start
+
+wgo run ./main.go task start
+```
+
+> [!NOTE]
+> The gateway API is mount to `localhost:<PORT>/api` not `localhost:<PORT>`.
+
+<!-- Running Tests -->
+
+### :test_tube: Running Tests
+
+#### Test API with Postman
+
+You can test the REST API with Postman by importing files from
+[`/api/openapi/`](/api/openapi/) to your Postman.
 
 <!-- Usage -->
 
@@ -242,11 +263,7 @@ go run ./main.go
 
 ### Access Swagger UI
 
-Open your browser and go to `http://localhost:8082`.
-
-> [!NOTE]
-> Currently, I having problems with the hostname and port so the Swagger UI is
-> not working properly.
+Open your browser and go to `http://localhost/docs`.
 
 ### Build Docker Image
 
@@ -259,9 +276,22 @@ Open your browser and go to `http://localhost:8082`.
 docker build -t go-todo -f ./docker/tasks/Dockerfile .
 ```
 
+Or build ghcr image:
+
+```bash
+make docker-build
+```
+
 ### Makefile
 
 `Makefile` provides some useful targets to help you work with this project:
+
+- `download-deps`: Download all tool dependencies.
+
+  ```bash
+  make download-deps
+  ```
+
 
 - `gen-proto`: Generate gRPC and gRPC gateway from proto files.
 
@@ -281,6 +311,11 @@ docker build -t go-todo -f ./docker/tasks/Dockerfile .
   make docker-build
   ```
 
+- `docker-push`: Push Docker image to ghcr.io registry.
+
+  ```bash
+  make docker-push
+  ```
 
 <!-- Roadmap -->
 
