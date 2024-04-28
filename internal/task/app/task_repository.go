@@ -3,9 +3,9 @@ package app
 import "context"
 
 type TaskRepository interface {
-	GetAll(ctx context.Context) ([]Task, error)
-	Create(ctx context.Context, task *Task) error
-	Delete(ctx context.Context, id string) error
-	GetByID(ctx context.Context, id string) (*Task, error)
-	Update(ctx context.Context, id string, task *Task) error
+	CreateTask(ctx context.Context, body *CreateTaskDto) (*Task, error)
+	GetAllTask(ctx context.Context) ([]*Task, error)
+	GetTaskById(ctx context.Context, taskId string) (*Task, error)
+	UpdateTask(ctx context.Context, taskId string, body *UpdateTaskDto) (*Task, error)
+	DeleteTask(ctx context.Context, taskId string) (*Task, error)
 }

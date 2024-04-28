@@ -1,21 +1,22 @@
 package task
 
 import (
+	"context"
 	"fmt"
+	"os"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/task/adapters"
-	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"github.com/DuckyMomo20012/go-todo/internal/task/configs"
 	"github.com/DuckyMomo20012/go-todo/internal/task/ports"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
-	"xorm.io/xorm"
 )
 
 func NewTaskCmd() *cobra.Command {
@@ -51,28 +52,22 @@ func startTaskServer() {
 		log.Error(fmt.Sprintf("Error loading config, %s", err))
 	}
 
-	engine, err := xorm.NewEngine("postgres",
-		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-			config.DBHost,
-			config.DBPort,
-			config.DBUser,
-			config.DBPass,
-			config.DBName,
-		))
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		config.DBUser,
+		config.DBPassword,
+		config.DBHost,
+		config.DBPort,
+		config.DBName,
+	)
+
+	dbpool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
-		log.Error(fmt.Sprintf("Error connecting to database, %s", err))
-
-		return
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
 	}
+	defer dbpool.Close()
 
-	// NOTE: Sync database models
-	if err := engine.Sync(new(app.Task)); err != nil {
-		log.Error(fmt.Sprintf("Error syncing database, %s", err))
-
-		return
-	}
-
-	taskRepository := adapters.NewPgTaskRepository(engine)
+	taskRepository := adapters.NewPgTaskRepository(dbpool)
 
 	taskServer := ports.NewGrpcServer(taskRepository)
 

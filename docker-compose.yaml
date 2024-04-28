@@ -1,12 +1,12 @@
 services:
-  db:
+  task-db:
     image: postgres:16.2
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: task
     ports:
-      - "5432:5432"
+      - "65433:5432"
     networks:
       - go-todo-net
     healthcheck:
@@ -14,31 +14,6 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
-
-  nginx:
-    container_name: nginx
-    image: nginx:alpine
-    tty: true
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      # nginx config
-      - ./docker/nginx:/etc/nginx/conf.d
-    restart: always
-    networks:
-      - go-todo-net
-
-  swagger-service:
-    image: swaggerapi/swagger-ui:latest
-    expose:
-      - "8080"
-    environment:
-      SWAGGER_JSON: /app/openapi/task/v1/task.swagger.json
-    volumes:
-      - ./api:/app
-    networks:
-      - go-todo-net
 
   gateway-service:
     build:
@@ -65,7 +40,7 @@ services:
       HOST: "0.0.0.0"
       PORT: "9000"
 
-      DB_HOST: db
+      DB_HOST: task-db
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
@@ -74,8 +49,52 @@ services:
     networks:
       - go-todo-net
     depends_on:
-      db:
+      task-db:
         condition: service_healthy
+
+  task-migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    command:
+      [
+        "-path=/migrations/task",
+        "-database=postgresql://postgres:postgres@task-db:5432/task?sslmode=disable",
+        "up",
+      ]
+    networks:
+      - go-todo-net
+    depends_on:
+      task-db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    tty: true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      # nginx config
+      - ./docker/nginx:/etc/nginx/conf.d
+    restart: always
+    networks:
+      - go-todo-net
+
+  swagger-service:
+    image: swaggerapi/swagger-ui:latest
+    expose:
+      - "8080"
+    environment:
+      # Ref: https://github.com/swagger-api/swagger-ui/issues/4915#issuecomment-475755863
+      URLS: >
+        [
+          { url: 'docs/task/v1/task.swagger.json', name: 'Go Todo Task API' }
+        ]
+    volumes:
+      - ./api/openapi:/usr/share/nginx/html/docs/
+    networks:
+      - go-todo-net
 
 networks:
   go-todo-net:

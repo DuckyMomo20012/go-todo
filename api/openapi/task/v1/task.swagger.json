@@ -3,7 +3,7 @@
   "info": {
     "title": "Go Todo task API",
     "description": "Task server API",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "contact": {
       "name": "DuckyMomo20012",
       "url": "https://github.com/DuckyMomo20012"
@@ -22,14 +22,14 @@
     "application/json"
   ],
   "paths": {
-    "/tasks": {
+    "/task": {
       "get": {
-        "operationId": "TaskService_GetAllTasks",
+        "operationId": "TaskService_GetAllTask",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetAllTasksResponse"
+              "$ref": "#/definitions/v1GetAllTaskResponse"
             }
           },
           "default": {
@@ -62,10 +62,11 @@
         "parameters": [
           {
             "name": "body",
+            "description": "Request body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1CreateTaskRequest"
+              "$ref": "#/definitions/v1CreateTaskRequestBody"
             }
           }
         ],
@@ -74,14 +75,14 @@
         ]
       }
     },
-    "/tasks/{id}": {
+    "/task/{taskId}": {
       "get": {
-        "operationId": "TaskService_GetOneTask",
+        "operationId": "TaskService_GetTaskById",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetOneTaskResponse"
+              "$ref": "#/definitions/v1GetTaskByIdResponse"
             }
           },
           "default": {
@@ -93,7 +94,7 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "taskId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -121,7 +122,7 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "taskId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -149,17 +150,18 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "taskId",
             "in": "path",
             "required": true,
             "type": "string"
           },
           {
             "name": "body",
+            "description": "Request body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/TaskServiceUpdateTaskBody"
+              "$ref": "#/definitions/v1UpdateTaskRequestBody"
             }
           }
         ],
@@ -170,17 +172,6 @@
     }
   },
   "definitions": {
-    "TaskServiceUpdateTaskBody": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        }
-      }
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -209,7 +200,7 @@
         }
       }
     },
-    "v1CreateTaskRequest": {
+    "v1CreateTaskRequestBody": {
       "type": "object",
       "properties": {
         "title": {
@@ -221,12 +212,22 @@
       }
     },
     "v1CreateTaskResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/v1Task"
+        }
+      }
     },
     "v1DeleteTaskResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/v1Task"
+        }
+      }
     },
-    "v1GetAllTasksResponse": {
+    "v1GetAllTaskResponse": {
       "type": "object",
       "properties": {
         "tasks": {
@@ -238,7 +239,7 @@
         }
       }
     },
-    "v1GetOneTaskResponse": {
+    "v1GetTaskByIdResponse": {
       "type": "object",
       "properties": {
         "task": {
@@ -249,9 +250,26 @@
     "v1Task": {
       "type": "object",
       "properties": {
-        "id": {
+        "taskId": {
           "type": "string"
         },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "v1UpdateTaskRequestBody": {
+      "type": "object",
+      "properties": {
         "title": {
           "type": "string"
         },
@@ -261,7 +279,12 @@
       }
     },
     "v1UpdateTaskResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/v1Task"
+        }
+      }
     }
   }
 }

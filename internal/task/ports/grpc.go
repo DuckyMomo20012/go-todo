@@ -5,88 +5,99 @@ import (
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type GrpcServer struct {
-	taskRepository app.TaskRepository
+	taskRepo app.TaskRepository
 	taskv1.UnimplementedTaskServiceServer
 }
 
-func NewGrpcServer(taskRepository app.TaskRepository) GrpcServer {
+func NewGrpcServer(taskRepo app.TaskRepository) GrpcServer {
+	if taskRepo == nil {
+		panic("missing task repository")
+	}
+
 	return GrpcServer{
-		taskRepository: taskRepository,
+		taskRepo: taskRepo,
 	}
 }
 
-func (g GrpcServer) GetAllTasks(ctx context.Context, _ *taskv1.GetAllTasksRequest) (*taskv1.GetAllTasksResponse, error) {
-	tasks, err := g.taskRepository.GetAll(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+func MapTaskToProto(task app.Task) *taskv1.Task {
+	if task.Description == nil {
+		task.Description = new(string)
 	}
 
-	response := make([]*taskv1.Task, 0)
+	return &taskv1.Task{
+		TaskId:      task.TaskId,
+		Title:       task.Title,
+		Description: *task.Description,
+	}
+}
 
+func (g GrpcServer) CreateTask(ctx context.Context, req *taskv1.CreateTaskRequest) (*taskv1.CreateTaskResponse, error) {
+	createdTask, err := g.taskRepo.CreateTask(ctx, &app.CreateTaskDto{
+		Title:       req.Body.Title,
+		Description: req.Body.Description,
+	})
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to create task")
+	}
+
+	return &taskv1.CreateTaskResponse{
+		Task: MapTaskToProto(*createdTask),
+	}, nil
+}
+
+func (g GrpcServer) GetAllTask(ctx context.Context, req *taskv1.GetAllTaskRequest) (*taskv1.GetAllTaskResponse, error) {
+	tasks, err := g.taskRepo.GetAllTask(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to get tasks")
+	}
+
+	var taskList []*taskv1.Task
 	for _, task := range tasks {
-		response = append(response, &taskv1.Task{
-			Id:          task.UUID,
-			Title:       task.Title,
-			Description: task.Description,
-		})
+		taskList = append(taskList, MapTaskToProto(*task))
 	}
 
-	return &taskv1.GetAllTasksResponse{
-		Tasks: response,
+	return &taskv1.GetAllTaskResponse{
+		Tasks: taskList,
 	}, nil
 }
 
-func (g GrpcServer) CreateTask(ctx context.Context, request *taskv1.CreateTaskRequest) (*taskv1.CreateTaskResponse, error) {
-	err := g.taskRepository.Create(ctx, &app.Task{
-		UUID:        uuid.New().String(),
-		Title:       request.Title,
-		Description: request.Description,
-	})
+func (g GrpcServer) GetTaskById(ctx context.Context, req *taskv1.GetTaskByIdRequest) (*taskv1.GetTaskByIdResponse, error) {
+	task, err := g.taskRepo.GetTaskById(ctx, req.TaskId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, status.Error(codes.NotFound, "task not found")
 	}
 
-	return &taskv1.CreateTaskResponse{}, nil
+	return &taskv1.GetTaskByIdResponse{
+		Task: MapTaskToProto(*task),
+	}, nil
 }
 
-func (g GrpcServer) DeleteTask(ctx context.Context, request *taskv1.DeleteTaskRequest) (*taskv1.DeleteTaskResponse, error) {
-	err := g.taskRepository.Delete(ctx, request.Id)
+func (g GrpcServer) UpdateTask(ctx context.Context, req *taskv1.UpdateTaskRequest) (*taskv1.UpdateTaskResponse, error) {
+	updatedTask, err := g.taskRepo.UpdateTask(ctx, req.TaskId, &app.UpdateTaskDto{
+		Title:       req.Body.Title,
+		Description: req.Body.Description,
+	})
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "failed to update task")
+	}
+
+	return &taskv1.UpdateTaskResponse{
+		Task: MapTaskToProto(*updatedTask),
+	}, nil
+}
+
+func (g GrpcServer) DeleteTask(ctx context.Context, req *taskv1.DeleteTaskRequest) (*taskv1.DeleteTaskResponse, error) {
+	deletedTask, err := g.taskRepo.DeleteTask(ctx, req.TaskId)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
-	return &taskv1.DeleteTaskResponse{}, nil
-}
-
-func (g GrpcServer) GetOneTask(ctx context.Context, request *taskv1.GetOneTaskRequest) (*taskv1.GetOneTaskResponse, error) {
-	task, err := g.taskRepository.GetByID(ctx, request.Id)
-	if err != nil {
-		return nil, status.Error(codes.NotFound, err.Error())
-	}
-
-	return &taskv1.GetOneTaskResponse{
-		Task: &taskv1.Task{
-			Id:          task.UUID,
-			Title:       task.Title,
-			Description: task.Description,
-		},
+	return &taskv1.DeleteTaskResponse{
+		Task: MapTaskToProto(*deletedTask),
 	}, nil
-}
-
-func (g GrpcServer) UpdateTask(ctx context.Context, request *taskv1.UpdateTaskRequest) (*taskv1.UpdateTaskResponse, error) {
-	err := g.taskRepository.Update(ctx, request.Id, &app.Task{
-		Title:       request.Title,
-		Description: request.Description,
-	})
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	return &taskv1.UpdateTaskResponse{}, nil
 }

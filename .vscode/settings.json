@@ -16,7 +16,7 @@
     "editor.defaultFormatter": "vscode.markdown-language-features",
     "editor.tabSize": 2
   },
-  "[proto3]": {
+  "[proto]": {
     "editor.defaultFormatter": "bufbuild.vscode-buf"
   },
   "[sql]": {
