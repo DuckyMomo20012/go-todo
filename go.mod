@@ -3,6 +3,7 @@ module github.com/DuckyMomo20012/go-todo
 go 1.22.1
 
 require (
+	github.com/bokwoon95/wgo v0.5.6
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/golangci/golangci-lint v1.57.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
