@@ -2,23 +2,70 @@ package adapters
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
-	"xorm.io/xorm"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/stephenafamo/bob/dialect/psql"
+	"github.com/stephenafamo/bob/dialect/psql/dm"
+	"github.com/stephenafamo/bob/dialect/psql/im"
+	"github.com/stephenafamo/bob/dialect/psql/sm"
+	"github.com/stephenafamo/bob/dialect/psql/um"
 )
 
 type PgTaskRepository struct {
-	engine *xorm.Engine
+	db *pgxpool.Pool
 }
 
-func NewPgTaskRepository(engine *xorm.Engine) *PgTaskRepository {
-	return &PgTaskRepository{engine: engine}
+func NewPgTaskRepository(db *pgxpool.Pool) *PgTaskRepository {
+	if db == nil {
+		panic("missing db connection")
+	}
+
+	return &PgTaskRepository{
+		db: db,
+	}
 }
 
-func (p PgTaskRepository) GetAll(_ context.Context) ([]app.Task, error) {
-	var tasks []app.Task
+func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDto) (*app.Task, error) {
+	q, args := psql.Insert(
+		im.Into("task", "title", "description"),
+		im.Values(psql.Arg(body.Title, body.Description)),
+		im.Returning("*"),
+	).MustBuild()
 
-	err := p.engine.Find(&tasks)
+	rows, err := p.db.Query(ctx, q, args...)
+	fmt.Printf("err %#v\n", err)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	createdTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	fmt.Printf("err %#v\n", err)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdTask, nil
+}
+
+func (p PgTaskRepository) GetAllTask(ctx context.Context) ([]*app.Task, error) {
+	q, args := psql.Select(
+		sm.Columns("*"),
+		sm.From("task"),
+	).MustBuild()
+
+	rows, err := p.db.Query(ctx, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	tasks, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
@@ -26,31 +73,70 @@ func (p PgTaskRepository) GetAll(_ context.Context) ([]app.Task, error) {
 	return tasks, nil
 }
 
-func (p PgTaskRepository) Create(_ context.Context, task *app.Task) error {
-	_, err := p.engine.Insert(task)
+func (p PgTaskRepository) GetTaskById(ctx context.Context, taskId string) (*app.Task, error) {
+	q, args := psql.Select(
+		sm.Columns("*"),
+		sm.From("task"),
+		sm.Where(psql.Quote("task_id").EQ(psql.Arg(taskId))),
+	).MustBuild()
 
-	return err
-}
-
-func (p PgTaskRepository) Delete(_ context.Context, id string) error {
-	_, err := p.engine.ID(id).Delete(&app.Task{})
-
-	return err
-}
-
-func (p PgTaskRepository) GetByID(_ context.Context, id string) (*app.Task, error) {
-	var task app.Task
-
-	_, err := p.engine.ID(id).Get(&task)
+	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &task, nil
+	defer rows.Close()
+
+	task, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
 }
 
-func (p PgTaskRepository) Update(_ context.Context, id string, task *app.Task) error {
-	_, err := p.engine.ID(id).Update(task)
+func (p PgTaskRepository) UpdateTask(ctx context.Context, taskId string, body *app.UpdateTaskDto) (*app.Task, error) {
+	q, args := psql.Update(
+		um.Table("task"),
+		um.SetCol("title").To(psql.Raw("coalesce(nullif(?, ''), title)", body.Title)),
+		um.SetCol("description").To(psql.Raw("coalesce(?, description)", body.Description)),
+		um.Where(psql.Quote("task_id").EQ(psql.Arg(taskId))),
+		um.Returning("*"),
+	).MustBuild()
 
-	return err
+	rows, err := p.db.Query(ctx, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	updatedTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedTask, nil
+}
+
+func (p PgTaskRepository) DeleteTask(ctx context.Context, taskId string) (*app.Task, error) {
+	q, args := psql.Delete(
+		dm.From("task"),
+		dm.Where(psql.Quote("task_id").EQ(psql.Arg(taskId))),
+		dm.Returning("*"),
+	).MustBuild()
+
+	rows, err := p.db.Query(ctx, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	deletedTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	if err != nil {
+		return nil, err
+	}
+
+	return deletedTask, nil
 }
