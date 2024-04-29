@@ -7,6 +7,7 @@ import (
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GrpcServer struct {
@@ -33,6 +34,8 @@ func MapTaskToProto(task app.Task) *taskv1.Task {
 		TaskId:      task.TaskId,
 		Title:       task.Title,
 		Description: *task.Description,
+		CreatedAt:   timestamppb.New(task.CreatedAt.Time),
+		UpdatedAt:   timestamppb.New(task.UpdatedAt.Time),
 	}
 }
 

@@ -2,7 +2,6 @@ package adapters
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"github.com/jackc/pgx/v5"
@@ -36,7 +35,6 @@ func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDt
 	).MustBuild()
 
 	rows, err := p.db.Query(ctx, q, args...)
-	fmt.Printf("err %#v\n", err)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +42,6 @@ func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDt
 	defer rows.Close()
 
 	createdTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
-	fmt.Printf("err %#v\n", err)
 	if err != nil {
 		return nil, err
 	}
