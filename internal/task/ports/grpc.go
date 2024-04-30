@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/validate"
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
@@ -45,10 +46,16 @@ func MapTaskToProto(task app.Task) *taskv1.Task {
 }
 
 func (g GrpcServer) CreateTask(ctx context.Context, req *taskv1.CreateTaskRequest) (*taskv1.CreateTaskResponse, error) {
-	createdTask, err := g.taskRepo.CreateTask(ctx, &app.CreateTaskDto{
+	createTaskDto := &app.CreateTaskDto{
 		Title:       req.Body.Title,
 		Description: req.Body.Description,
-	})
+	}
+
+	if err := validate.Validate(createTaskDto); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	createdTask, err := g.taskRepo.CreateTask(ctx, createTaskDto)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -100,10 +107,16 @@ func (g GrpcServer) GetTaskById(ctx context.Context, req *taskv1.GetTaskByIdRequ
 }
 
 func (g GrpcServer) UpdateTask(ctx context.Context, req *taskv1.UpdateTaskRequest) (*taskv1.UpdateTaskResponse, error) {
-	updatedTask, err := g.taskRepo.UpdateTask(ctx, req.TaskId, &app.UpdateTaskDto{
+	updateTaskDto := &app.UpdateTaskDto{
 		Title:       req.Body.Title,
 		Description: req.Body.Description,
-	})
+	}
+
+	if err := validate.Validate(updateTaskDto); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	updatedTask, err := g.taskRepo.UpdateTask(ctx, req.TaskId, updateTaskDto)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "task not found")
