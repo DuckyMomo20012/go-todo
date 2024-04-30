@@ -2,7 +2,6 @@ package adapters
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"github.com/jackc/pgx/v5"
@@ -31,20 +30,18 @@ func NewPgTaskRepository(db *pgxpool.Pool) *PgTaskRepository {
 func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDto) (*app.Task, error) {
 	q, args := psql.Insert(
 		im.Into("task", "title", "description"),
-		im.Values(psql.Arg(body.Title, body.Description)),
+		im.Values(psql.Raw("nullif(?, '')", body.Title), psql.Arg(body.Description)),
 		im.Returning("*"),
 	).MustBuild()
 
 	rows, err := p.db.Query(ctx, q, args...)
-	fmt.Printf("err %#v\n", err)
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	createdTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
-	fmt.Printf("err %#v\n", err)
+	createdTask, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +84,7 @@ func (p PgTaskRepository) GetTaskById(ctx context.Context, taskId string) (*app.
 
 	defer rows.Close()
 
-	task, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	task, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +108,7 @@ func (p PgTaskRepository) UpdateTask(ctx context.Context, taskId string, body *a
 
 	defer rows.Close()
 
-	updatedTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	updatedTask, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +130,7 @@ func (p PgTaskRepository) DeleteTask(ctx context.Context, taskId string) (*app.T
 
 	defer rows.Close()
 
-	deletedTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	deletedTask, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}

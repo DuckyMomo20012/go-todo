@@ -2,11 +2,18 @@ package ports
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/validate"
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GrpcServer struct {
@@ -33,16 +40,34 @@ func MapTaskToProto(task app.Task) *taskv1.Task {
 		TaskId:      task.TaskId,
 		Title:       task.Title,
 		Description: *task.Description,
+		CreatedAt:   timestamppb.New(task.CreatedAt.Time),
+		UpdatedAt:   timestamppb.New(task.UpdatedAt.Time),
 	}
 }
 
 func (g GrpcServer) CreateTask(ctx context.Context, req *taskv1.CreateTaskRequest) (*taskv1.CreateTaskResponse, error) {
-	createdTask, err := g.taskRepo.CreateTask(ctx, &app.CreateTaskDto{
+	createTaskDto := &app.CreateTaskDto{
 		Title:       req.Body.Title,
 		Description: req.Body.Description,
-	})
+	}
+
+	if err := validate.Validate(createTaskDto); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	createdTask, err := g.taskRepo.CreateTask(ctx, createTaskDto)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "failed to create task")
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case pgerrcode.UniqueViolation:
+				return nil, status.Error(codes.AlreadyExists, "task already exists")
+			case pgerrcode.NotNullViolation:
+				return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("missing required field: %s", pgErr.ColumnName))
+			}
+		}
+
+		return nil, status.Error(codes.Internal, "failed to create task")
 	}
 
 	return &taskv1.CreateTaskResponse{
@@ -69,7 +94,11 @@ func (g GrpcServer) GetAllTask(ctx context.Context, req *taskv1.GetAllTaskReques
 func (g GrpcServer) GetTaskById(ctx context.Context, req *taskv1.GetTaskByIdRequest) (*taskv1.GetTaskByIdResponse, error) {
 	task, err := g.taskRepo.GetTaskById(ctx, req.TaskId)
 	if err != nil {
-		return nil, status.Error(codes.NotFound, "task not found")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "task not found")
+		}
+
+		return nil, status.Error(codes.Internal, "failed to get task by id")
 	}
 
 	return &taskv1.GetTaskByIdResponse{
@@ -78,12 +107,22 @@ func (g GrpcServer) GetTaskById(ctx context.Context, req *taskv1.GetTaskByIdRequ
 }
 
 func (g GrpcServer) UpdateTask(ctx context.Context, req *taskv1.UpdateTaskRequest) (*taskv1.UpdateTaskResponse, error) {
-	updatedTask, err := g.taskRepo.UpdateTask(ctx, req.TaskId, &app.UpdateTaskDto{
+	updateTaskDto := &app.UpdateTaskDto{
 		Title:       req.Body.Title,
 		Description: req.Body.Description,
-	})
+	}
+
+	if err := validate.Validate(updateTaskDto); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	updatedTask, err := g.taskRepo.UpdateTask(ctx, req.TaskId, updateTaskDto)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "failed to update task")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "task not found")
+		}
+
+		return nil, status.Error(codes.Internal, "failed to update task")
 	}
 
 	return &taskv1.UpdateTaskResponse{
@@ -94,7 +133,11 @@ func (g GrpcServer) UpdateTask(ctx context.Context, req *taskv1.UpdateTaskReques
 func (g GrpcServer) DeleteTask(ctx context.Context, req *taskv1.DeleteTaskRequest) (*taskv1.DeleteTaskResponse, error) {
 	deletedTask, err := g.taskRepo.DeleteTask(ctx, req.TaskId)
 	if err != nil {
-		return nil, status.Error(codes.NotFound, err.Error())
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "task not found")
+		}
+
+		return nil, status.Error(codes.Internal, "failed to delete task")
 	}
 
 	return &taskv1.DeleteTaskResponse{

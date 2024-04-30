@@ -11,11 +11,11 @@ type Task struct {
 }
 
 type CreateTaskDto struct {
-	Title       string
-	Description *string
+	Title       string  `json:"title" validate:"required"`
+	Description *string `json:"description"`
 }
 
 type UpdateTaskDto struct {
-	Title       *string
-	Description *string
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
 }

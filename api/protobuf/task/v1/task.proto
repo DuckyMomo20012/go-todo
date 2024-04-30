@@ -3,6 +3,7 @@ syntax = "proto3";
 package task.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 // Ref:
@@ -49,8 +50,8 @@ message Task {
   string task_id = 1;
   string title = 2;
   string description = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
 }
 
 message CreateTaskRequest {
