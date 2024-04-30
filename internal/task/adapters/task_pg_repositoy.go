@@ -41,7 +41,7 @@ func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDt
 
 	defer rows.Close()
 
-	createdTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	createdTask, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (p PgTaskRepository) GetTaskById(ctx context.Context, taskId string) (*app.
 
 	defer rows.Close()
 
-	task, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	task, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (p PgTaskRepository) UpdateTask(ctx context.Context, taskId string, body *a
 
 	defer rows.Close()
 
-	updatedTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	updatedTask, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (p PgTaskRepository) DeleteTask(ctx context.Context, taskId string) (*app.T
 
 	defer rows.Close()
 
-	deletedTask, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
+	deletedTask, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[app.Task])
 	if err != nil {
 		return nil, err
 	}
