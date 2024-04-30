@@ -30,7 +30,7 @@ func NewPgTaskRepository(db *pgxpool.Pool) *PgTaskRepository {
 func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDto) (*app.Task, error) {
 	q, args := psql.Insert(
 		im.Into("task", "title", "description"),
-		im.Values(psql.Arg(body.Title, body.Description)),
+		im.Values(psql.Raw("nullif(?, '')", body.Title), psql.Arg(body.Description)),
 		im.Returning("*"),
 	).MustBuild()
 
