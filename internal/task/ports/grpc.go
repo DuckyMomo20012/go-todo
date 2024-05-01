@@ -98,7 +98,7 @@ func (g GrpcServer) GetTaskById(ctx context.Context, req *taskv1.GetTaskByIdRequ
 			return nil, status.Error(codes.NotFound, "task not found")
 		}
 
-		return nil, status.Error(codes.Internal, "failed to get task by id")
+		return nil, status.Error(codes.Internal, "failed to get task")
 	}
 
 	return &taskv1.GetTaskByIdResponse{
