@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/sirupsen/logrus"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/logger"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func RunGRPCServer(registerServer func(server *grpc.Server)) {
+	log := logger.Get()
+
 	port := viper.Get("PORT")
 
 	grpcEndpoint := fmt.Sprintf(":%s", port)
@@ -27,9 +29,12 @@ func RunGRPCServer(registerServer func(server *grpc.Server)) {
 
 	listen, err := net.Listen("tcp", grpcEndpoint)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Panic().Err(err).Msgf("failed to listen on %s", grpcEndpoint)
 	}
 
-	logrus.WithField("grpcEndpoint", grpcEndpoint).Info("Starting: gRPC Listener")
-	logrus.Fatal(grpcServer.Serve(listen))
+	log.Info().Str("grpcEndpoint", grpcEndpoint).Msg("Starting: gRPC Listener")
+
+	if err := grpcServer.Serve(listen); err != nil {
+		log.Panic().Err(err).Msg("failed to serve gRPC server")
+	}
 }

@@ -3,14 +3,13 @@ package gateway
 import (
 	"context"
 	"flag"
-	"fmt"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/logger"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/gateway/configs"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
@@ -42,15 +41,21 @@ func startGatewayServer() {
 	viper.SetDefault("HOST", "0.0.0.0")
 	viper.SetDefault("PORT", "8081")
 
+	viper.SetDefault("LOG_LEVEL", "0")
+	viper.SetDefault("LOG_SAMPLE_RATE", "5")
+
+	log := logger.Get()
+	logger.SetService("gateway")
+
 	var config configs.ServerConfig
 
 	if err := cfg.LoadConfig(&config, "./internal/gateway/configs"); err != nil {
-		log.Error(fmt.Sprintf("Error loading config, %s", err))
+		log.Error().Err(err).Msg("failed to load config")
 	}
 
 	taskServerEndpoint := flag.String("task-server-endpoint", config.TaskServerAddress, "task gRPC server endpoint")
 
-	err := server.RunGatewayServer(func(ctx context.Context, mux *runtime.ServeMux, opts []grpc.DialOption) error {
+	server.RunGatewayServer(func(ctx context.Context, mux *runtime.ServeMux, opts []grpc.DialOption) error {
 		err := multierr.Combine(
 			taskv1.RegisterTaskServiceHandlerFromEndpoint(ctx, mux, *taskServerEndpoint, opts),
 		)
@@ -60,7 +65,4 @@ func startGatewayServer() {
 
 		return nil
 	})
-	if err != nil {
-		log.Error(fmt.Sprintf("Error running gateway server, %s", err))
-	}
 }
