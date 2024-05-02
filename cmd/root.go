@@ -28,6 +28,4 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
-
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

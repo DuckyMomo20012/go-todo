@@ -3,17 +3,16 @@ package task
 import (
 	"context"
 	"fmt"
-	"os"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/logger"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/task/adapters"
 	"github.com/DuckyMomo20012/go-todo/internal/task/configs"
 	"github.com/DuckyMomo20012/go-todo/internal/task/ports"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -41,15 +40,24 @@ func NewTaskCmd() *cobra.Command {
 }
 
 func startTaskServer() {
+	viper.SetDefault("APP_ENV", "development")
+
 	viper.SetDefault("HOST", "0.0.0.0")
-	viper.SetDefault("PORT", "8080")
+	viper.SetDefault("PORT", "9000")
+
 	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_PORT", "5432")
+
+	viper.SetDefault("LOG_LEVEL", "0")
+	viper.SetDefault("LOG_SAMPLE_RATE", "5")
+
+	log := logger.Get()
+	logger.SetService("task")
 
 	var config configs.ServerConfig
 
 	if err := cfg.LoadConfig(&config, "./internal/task/configs"); err != nil {
-		log.Error(fmt.Sprintf("Error loading config, %s", err))
+		log.Error().Err(err).Msg("failed to load config")
 	}
 
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
@@ -62,8 +70,7 @@ func startTaskServer() {
 
 	dbpool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
+		log.Panic().Err(err).Msg("failed to connect to database")
 	}
 	defer dbpool.Close()
 

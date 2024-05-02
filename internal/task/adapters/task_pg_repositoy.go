@@ -3,6 +3,7 @@ package adapters
 import (
 	"context"
 
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/logger"
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,8 +19,10 @@ type PgTaskRepository struct {
 }
 
 func NewPgTaskRepository(db *pgxpool.Pool) *PgTaskRepository {
+	log := logger.Get()
+
 	if db == nil {
-		panic("missing db connection")
+		log.Panic().Msg("missing db connection")
 	}
 
 	return &PgTaskRepository{
@@ -28,11 +31,15 @@ func NewPgTaskRepository(db *pgxpool.Pool) *PgTaskRepository {
 }
 
 func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDto) (*app.Task, error) {
+	log := logger.Get()
+
 	q, args := psql.Insert(
 		im.Into("task", "title", "description"),
 		im.Values(psql.Raw("nullif(?, '')", body.Title), psql.Arg(body.Description)),
 		im.Returning("*"),
 	).MustBuild()
+
+	log.Debug().Str("query", q).Msg("query")
 
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
@@ -50,10 +57,14 @@ func (p PgTaskRepository) CreateTask(ctx context.Context, body *app.CreateTaskDt
 }
 
 func (p PgTaskRepository) GetAllTask(ctx context.Context) ([]*app.Task, error) {
+	log := logger.Get()
+
 	q, args := psql.Select(
 		sm.Columns("*"),
 		sm.From("task"),
 	).MustBuild()
+
+	log.Debug().Str("query", q).Msg("query")
 
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
@@ -71,11 +82,15 @@ func (p PgTaskRepository) GetAllTask(ctx context.Context) ([]*app.Task, error) {
 }
 
 func (p PgTaskRepository) GetTaskById(ctx context.Context, taskId string) (*app.Task, error) {
+	log := logger.Get()
+
 	q, args := psql.Select(
 		sm.Columns("*"),
 		sm.From("task"),
 		sm.Where(psql.Quote("task_id").EQ(psql.Arg(taskId))),
 	).MustBuild()
+
+	log.Debug().Str("query", q).Msg("query")
 
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
@@ -93,6 +108,8 @@ func (p PgTaskRepository) GetTaskById(ctx context.Context, taskId string) (*app.
 }
 
 func (p PgTaskRepository) UpdateTask(ctx context.Context, taskId string, body *app.UpdateTaskDto) (*app.Task, error) {
+	log := logger.Get()
+
 	q, args := psql.Update(
 		um.Table("task"),
 		um.SetCol("title").To(psql.Raw("coalesce(nullif(?, ''), title)", body.Title)),
@@ -100,6 +117,8 @@ func (p PgTaskRepository) UpdateTask(ctx context.Context, taskId string, body *a
 		um.Where(psql.Quote("task_id").EQ(psql.Arg(taskId))),
 		um.Returning("*"),
 	).MustBuild()
+
+	log.Debug().Str("query", q).Msg("query")
 
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
@@ -117,11 +136,14 @@ func (p PgTaskRepository) UpdateTask(ctx context.Context, taskId string, body *a
 }
 
 func (p PgTaskRepository) DeleteTask(ctx context.Context, taskId string) (*app.Task, error) {
+	log := logger.Get()
 	q, args := psql.Delete(
 		dm.From("task"),
 		dm.Where(psql.Quote("task_id").EQ(psql.Arg(taskId))),
 		dm.Returning("*"),
 	).MustBuild()
+
+	log.Debug().Str("query", q).Msg("query")
 
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
