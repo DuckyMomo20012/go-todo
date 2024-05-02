@@ -38,6 +38,8 @@ func NewGatewayCmd() *cobra.Command {
 }
 
 func startGatewayServer() {
+	viper.SetDefault("APP_ENV", "development")
+
 	viper.SetDefault("HOST", "0.0.0.0")
 	viper.SetDefault("PORT", "8081")
 

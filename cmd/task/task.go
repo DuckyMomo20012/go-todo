@@ -40,10 +40,16 @@ func NewTaskCmd() *cobra.Command {
 }
 
 func startTaskServer() {
+	viper.SetDefault("APP_ENV", "development")
+
 	viper.SetDefault("HOST", "0.0.0.0")
 	viper.SetDefault("PORT", "9000")
+
 	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_PORT", "5432")
+
+	viper.SetDefault("LOG_LEVEL", "0")
+	viper.SetDefault("LOG_SAMPLE_RATE", "5")
 
 	log := logger.Get()
 	logger.SetService("task")
