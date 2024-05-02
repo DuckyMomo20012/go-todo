@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/logger"
 	"github.com/DuckyMomo20012/go-todo/internal/common/libs/validate"
 	"github.com/DuckyMomo20012/go-todo/internal/task/app"
 	"github.com/jackc/pgerrcode"
@@ -46,6 +47,8 @@ func MapTaskToProto(task app.Task) *taskv1.Task {
 }
 
 func (g GrpcServer) CreateTask(ctx context.Context, req *taskv1.CreateTaskRequest) (*taskv1.CreateTaskResponse, error) {
+	log := logger.Get()
+
 	createTaskDto := &app.CreateTaskDto{
 		Title:       req.Body.Title,
 		Description: req.Body.Description,
@@ -67,6 +70,8 @@ func (g GrpcServer) CreateTask(ctx context.Context, req *taskv1.CreateTaskReques
 			}
 		}
 
+		log.Error().Err(err).Msg("failed to create task")
+
 		return nil, status.Error(codes.Internal, "failed to create task")
 	}
 
@@ -76,8 +81,12 @@ func (g GrpcServer) CreateTask(ctx context.Context, req *taskv1.CreateTaskReques
 }
 
 func (g GrpcServer) GetAllTask(ctx context.Context, req *taskv1.GetAllTaskRequest) (*taskv1.GetAllTaskResponse, error) {
+	log := logger.Get()
+
 	tasks, err := g.taskRepo.GetAllTask(ctx)
 	if err != nil {
+		log.Error().Err(err).Msg("failed to get tasks")
+
 		return nil, status.Error(codes.Internal, "failed to get tasks")
 	}
 
@@ -92,11 +101,15 @@ func (g GrpcServer) GetAllTask(ctx context.Context, req *taskv1.GetAllTaskReques
 }
 
 func (g GrpcServer) GetTaskById(ctx context.Context, req *taskv1.GetTaskByIdRequest) (*taskv1.GetTaskByIdResponse, error) {
+	log := logger.Get()
+
 	task, err := g.taskRepo.GetTaskById(ctx, req.TaskId)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "task not found")
 		}
+
+		log.Error().Err(err).Msg("failed to get task")
 
 		return nil, status.Error(codes.Internal, "failed to get task")
 	}
@@ -107,6 +120,8 @@ func (g GrpcServer) GetTaskById(ctx context.Context, req *taskv1.GetTaskByIdRequ
 }
 
 func (g GrpcServer) UpdateTask(ctx context.Context, req *taskv1.UpdateTaskRequest) (*taskv1.UpdateTaskResponse, error) {
+	log := logger.Get()
+
 	updateTaskDto := &app.UpdateTaskDto{
 		Title:       req.Body.Title,
 		Description: req.Body.Description,
@@ -122,6 +137,8 @@ func (g GrpcServer) UpdateTask(ctx context.Context, req *taskv1.UpdateTaskReques
 			return nil, status.Error(codes.NotFound, "task not found")
 		}
 
+		log.Error().Err(err).Msg("failed to update task")
+
 		return nil, status.Error(codes.Internal, "failed to update task")
 	}
 
@@ -131,11 +148,15 @@ func (g GrpcServer) UpdateTask(ctx context.Context, req *taskv1.UpdateTaskReques
 }
 
 func (g GrpcServer) DeleteTask(ctx context.Context, req *taskv1.DeleteTaskRequest) (*taskv1.DeleteTaskResponse, error) {
+	log := logger.Get()
+
 	deletedTask, err := g.taskRepo.DeleteTask(ctx, req.TaskId)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "task not found")
 		}
+
+		log.Error().Err(err).Msg("failed to delete task")
 
 		return nil, status.Error(codes.Internal, "failed to delete task")
 	}
