@@ -13,6 +13,7 @@ import (
 	"github.com/DuckyMomo20012/go-todo/internal/task/ports"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -51,14 +52,15 @@ func startTaskServer() {
 	viper.SetDefault("LOG_LEVEL", "0")
 	viper.SetDefault("LOG_SAMPLE_RATE", "5")
 
-	log := logger.Get()
-	logger.SetService("task")
-
 	var config configs.ServerConfig
 
 	if err := cfg.LoadConfig(&config, "./internal/task/configs"); err != nil {
 		log.Error().Err(err).Msg("failed to load config")
 	}
+
+	// NOTE: Load config before setting up logger
+	logger.Get()
+	logger.SetService("task")
 
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		config.DBUser,
