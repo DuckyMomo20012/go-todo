@@ -14,7 +14,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -40,18 +39,9 @@ func NewTaskCmd() *cobra.Command {
 }
 
 func startTaskServer() {
-	viper.SetDefault("APP_ENV", "development")
+	var config configs.TaskServerConfig
 
-	viper.SetDefault("HOST", "0.0.0.0")
-	viper.SetDefault("PORT", "9000")
-
-	viper.SetDefault("DB_HOST", "localhost")
-	viper.SetDefault("DB_PORT", "5432")
-
-	viper.SetDefault("LOG_LEVEL", "0")
-	viper.SetDefault("LOG_SAMPLE_RATE", "5")
-
-	var config configs.ServerConfig
+	configs.SetDefaultTaskConfig()
 
 	if err := cfg.LoadConfig(&config, "./internal/task/configs"); err != nil {
 		log.Error().Err(err).Msg("failed to load config")

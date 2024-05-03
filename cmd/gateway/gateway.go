@@ -12,7 +12,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"go.uber.org/multierr"
 	"google.golang.org/grpc"
 )
@@ -39,15 +38,9 @@ func NewGatewayCmd() *cobra.Command {
 }
 
 func startGatewayServer() {
-	viper.SetDefault("APP_ENV", "development")
+	var config configs.GatewayServerConfig
 
-	viper.SetDefault("HOST", "0.0.0.0")
-	viper.SetDefault("PORT", "8081")
-
-	viper.SetDefault("LOG_LEVEL", "0")
-	viper.SetDefault("LOG_SAMPLE_RATE", "5")
-
-	var config configs.ServerConfig
+	configs.SetDefaultGatewayServerConfig()
 
 	if err := cfg.LoadConfig(&config, "./internal/gateway/configs"); err != nil {
 		log.Error().Err(err).Msg("failed to load config")
