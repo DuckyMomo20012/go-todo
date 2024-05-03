@@ -1,17 +1,16 @@
 package task
 
 import (
-	"context"
 	"fmt"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/db"
 	"github.com/DuckyMomo20012/go-todo/internal/common/libs/logger"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/task/adapters"
 	"github.com/DuckyMomo20012/go-todo/internal/task/configs"
 	"github.com/DuckyMomo20012/go-todo/internal/task/ports"
-	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -62,7 +61,7 @@ func startTaskServer() {
 	logger.Get()
 	logger.SetService("task")
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		config.DBUser,
 		config.DBPassword,
 		config.DBHost,
@@ -70,10 +69,8 @@ func startTaskServer() {
 		config.DBName,
 	)
 
-	dbpool, err := pgxpool.New(context.Background(), dbURL)
-	if err != nil {
-		log.Panic().Err(err).Msg("failed to connect to database")
-	}
+	dbpool := db.NewDb(connString)
+
 	defer dbpool.Close()
 
 	taskRepository := adapters.NewPgTaskRepository(dbpool)
