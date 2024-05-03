@@ -1,18 +1,18 @@
 package task
 
 import (
-	"context"
 	"fmt"
 
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/db"
 	"github.com/DuckyMomo20012/go-todo/internal/common/libs/logger"
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/task/adapters"
 	"github.com/DuckyMomo20012/go-todo/internal/task/configs"
 	"github.com/DuckyMomo20012/go-todo/internal/task/ports"
-	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -51,16 +51,17 @@ func startTaskServer() {
 	viper.SetDefault("LOG_LEVEL", "0")
 	viper.SetDefault("LOG_SAMPLE_RATE", "5")
 
-	log := logger.Get()
-	logger.SetService("task")
-
 	var config configs.ServerConfig
 
 	if err := cfg.LoadConfig(&config, "./internal/task/configs"); err != nil {
 		log.Error().Err(err).Msg("failed to load config")
 	}
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	// NOTE: Load config before setting up logger
+	logger.Get()
+	logger.SetService("task")
+
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		config.DBUser,
 		config.DBPassword,
 		config.DBHost,
@@ -68,10 +69,8 @@ func startTaskServer() {
 		config.DBName,
 	)
 
-	dbpool, err := pgxpool.New(context.Background(), dbURL)
-	if err != nil {
-		log.Panic().Err(err).Msg("failed to connect to database")
-	}
+	dbpool := db.NewDb(connString)
+
 	defer dbpool.Close()
 
 	taskRepository := adapters.NewPgTaskRepository(dbpool)

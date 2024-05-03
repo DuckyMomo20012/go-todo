@@ -10,6 +10,7 @@ import (
 	"github.com/DuckyMomo20012/go-todo/internal/common/server"
 	"github.com/DuckyMomo20012/go-todo/internal/gateway/configs"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/multierr"
@@ -46,14 +47,15 @@ func startGatewayServer() {
 	viper.SetDefault("LOG_LEVEL", "0")
 	viper.SetDefault("LOG_SAMPLE_RATE", "5")
 
-	log := logger.Get()
-	logger.SetService("gateway")
-
 	var config configs.ServerConfig
 
 	if err := cfg.LoadConfig(&config, "./internal/gateway/configs"); err != nil {
 		log.Error().Err(err).Msg("failed to load config")
 	}
+
+	// NOTE: Load config before setting up logger
+	logger.Get()
+	logger.SetService("gateway")
 
 	taskServerEndpoint := flag.String("task-server-endpoint", config.TaskServerAddress, "task gRPC server endpoint")
 

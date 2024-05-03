@@ -1,3 +1,9 @@
+.PHONY: init
+init:
+	$(MAKE) download-deps
+
+	go env -w GOPRIVATE="github.com/DuckyMomo20012/*"
+
 .PHONY: download-deps
 download-deps:
 	@# Ref: https://github.com/golang/go/issues/25922#issuecomment-1038394599
