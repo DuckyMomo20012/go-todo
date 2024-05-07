@@ -1,10 +1,17 @@
 package configs
 
-type ServerConfig struct {
-	Host              string `mapstructure:"HOST"`
-	Port              string `mapstructure:"PORT"`
+import (
+	"github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
+	"github.com/spf13/viper"
+)
+
+type GatewayServerConfig struct {
+	config.BaseConfig
 	TaskServerAddress string `mapstructure:"TASK_SERVER_ADDRESS"`
-	AppEnv            string `mapstructure:"APP_ENV"`
-	LogLevel          string `mapstructure:"LOG_LEVEL"`
-	LogSampleRate     string `mapstructure:"LOG_SAMPLE_RATE"`
+}
+
+func SetDefaultGatewayServerConfig() {
+	config.SetDefaultBaseConfig()
+
+	viper.SetDefault("TASK_SERVER_ADDRESS", "localhost:8081")
 }
