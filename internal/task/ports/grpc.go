@@ -23,8 +23,10 @@ type GrpcServer struct {
 }
 
 func NewGrpcServer(taskRepo app.TaskRepository) GrpcServer {
+	log := logger.Get()
+
 	if taskRepo == nil {
-		panic("missing task repository")
+		log.Panic().Msg("missing task repository")
 	}
 
 	return GrpcServer{
