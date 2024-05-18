@@ -48,7 +48,7 @@ func startGatewayServer() {
 
 	// NOTE: Load config before setting up logger
 	logger.Get()
-	logger.SetService("gateway")
+	logger.WithService("gateway")
 
 	taskServerEndpoint := flag.String("task-server-endpoint", config.TaskServerAddress, "task gRPC server endpoint")
 

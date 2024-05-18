@@ -47,7 +47,7 @@ func startTaskServer() {
 
 	// NOTE: Load config before setting up logger
 	logger.Get()
-	logger.SetService("task")
+	logger.WithService("task")
 
 	dbpool := db.NewDb(config.DBUrl)
 
