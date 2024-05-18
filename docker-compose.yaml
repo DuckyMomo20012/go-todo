@@ -1,20 +1,4 @@
 services:
-  task-db:
-    image: postgres:16.2
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: task
-    ports:
-      - "65433:5432"
-    networks:
-      - go-todo-net
-    healthcheck:
-      test: pg_isready -U postgres -d task
-      interval: 10s
-      timeout: 3s
-      retries: 5
-
   gateway-service:
     build:
       context: .
@@ -37,20 +21,35 @@ services:
     expose:
       - "9000"
     environment:
-      HOST: "0.0.0.0"
       PORT: "9000"
+      APP_ENV: "development"
+      LOG_LEVEL: "0"
+      LOG_SAMPLE_RATE: "5"
 
-      DB_HOST: task-db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: task
+      DB_URL: "postgresql://postgres:postgres@task-db:5432/task?sslmode=disable"
+
     command: ["task", "start"]
     networks:
       - go-todo-net
     depends_on:
       task-db:
         condition: service_healthy
+
+  task-db:
+    image: postgres:16.2
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "task"
+    ports:
+      - "65433:5432"
+    networks:
+      - go-todo-net
+    healthcheck:
+      test: pg_isready -U postgres -d task
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   task-migrate:
     image: migrate/migrate
