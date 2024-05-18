@@ -52,6 +52,7 @@
   - [Environment Variables](#key-environment-variables)
 - [Getting Started](#toolbox-getting-started)
   - [Prerequisites](#bangbang-prerequisites)
+  - [Run with Docker Compose](#whale-run-with-docker-compose)
   - [Run Locally](#running-run-locally)
   - [Running Tests](#test_tube-running-tests)
 - [Usage](#eyes-usage)
@@ -127,6 +128,12 @@ file:
 
   - `HOST`: The host of the server. Default is `0.0.0.0`.
   - `PORT`: The port of the server. Default is `8081`.
+  - `APP_ENV`: The environment of the application. Default is `development`. It
+    can be `production` or `development`.
+  - `LOG_LEVEL`: The log level of the application. Default is `0`. See available
+    level in
+    [zerolog](https://github.com/rs/zerolog?tab=readme-ov-file#leveled-logging).
+  - `LOG_SAMPLE_RATE`: The sample rate of the log. Default is `5`.
 
   - `TASK_SERVER_ADDRESS`: The address of the task service. Example: `localhost:8080`.
 
@@ -134,10 +141,13 @@ file:
 
   ```
   # internal/gateway/configs/.env
-  HOST=0.0.0.0
+  HOST="0.0.0.0"
   PORT=8081
+  APP_ENV="development"
+  LOG_LEVEL=0
+  LOG_SAMPLE_RATE=5
 
-  TASK_SERVER_ADDRESS=localhost:8080
+  TASK_SERVER_ADDRESS="localhost:9000"
   ```
 
   You can also check out the file `internal/gateway/configs/.env.example` to see
@@ -146,27 +156,28 @@ file:
 
 - `internal/task/configs/.env`: Task service environment variables.
 
-  - `HOST`: The host of the server. Default is `0.0.0.0`.
   - `PORT`: The port of the server. Default is `8080`.
+  - `APP_ENV`: The environment of the application. Default is `development`. It
+    can be `production` or `development`.
+  - `LOG_LEVEL`: The log level of the application. Default is `0`. See available
+    level in
+    [zerolog](https://github.com/rs/zerolog?tab=readme-ov-file#leveled-logging).
+  - `LOG_SAMPLE_RATE`: The sample rate of the log. Default is `5`.
 
-  - `DB_HOST`: The host of the Postgres database. Default is `localhost`.
-  - `DB_PORT`: The port of the database. Default is `5432`.
-  - `DB_USER`: The user of the database. Default is `postgres`.
-  - `DB_PASSWORD`: The password of the database. Default is `postgres`.
-  - `DB_NAME`: The name of the database. Default is `task`.
+  - `DB_URL`: The URL of the database. Example:
+    `postgres://postgres:postgres@localhost:5432/task?sslmode=disable`.
 
   E.g:
 
   ```
   # internal/task/configs/.env
-  HOST=0.0.0.0
-  PORT=8080
+  PORT=9000
+  APP_ENV="development"
+  LOG_LEVEL=0
+  LOG_SAMPLE_RATE=5
 
-  DB_HOST=localhost
-  DB_PORT=5432
-  DB_USER=postgres
-  DB_PASSWORD=postgres
-  DB_NAME=task
+  DB_URL="postgresql://postgres:postgres@localhost:5432/task?sslmode=disable"
+
   ```
 
   You can also check out the file `internal/task/configs/.env.example` to see
@@ -181,6 +192,8 @@ file:
 ### :bangbang: Prerequisites
 
 - Go: `1.22.1`.
+
+- Docker: `26.1.2`.
 
 - Brew tools:
 
@@ -200,6 +213,25 @@ file:
 
 > [!NOTE]
 > These dependencies are not included during build.
+
+<!-- Run with Docker Compose -->
+
+### :whale: Run with Docker Compose
+
+Update the environment variables files:
+
+Please check the [Environment Variables](#key-environment-variables) section to
+see all required environment variables.
+
+Run the server:
+
+```bash
+docker-compose up -d
+```
+
+Access the Swagger UI at `http://localhost/docs`.
+
+Access the API at `http://localhost/api`.
 
 <!-- Run Locally -->
 
@@ -222,6 +254,11 @@ Install dependencies:
 ```bash
 go mod download
 ```
+
+Update the environment variables files:
+
+Please check the [Environment Variables](#key-environment-variables) section to
+see all required environment variables.
 
 Start the Postgres database:
 
@@ -254,8 +291,18 @@ wgo run ./main.go task start
 
 #### Test API with Postman
 
-You can test the REST API with Postman by importing files from
-[`/api/openapi/`](/api/openapi/) to your Postman.
+- REST API:
+
+  You can test the REST API with Postman by importing files from
+  [`/api/openapi/`](/api/openapi/) to your Postman.
+
+> [!NOTE]
+> You may have to add the `Authorization` header to your requests. You can get a
+> token by logging in with the `login` API.
+
+- gRPC API:
+
+  You can test the gRPC API with Postman by using Postman reflection feature.
 
 <!-- Usage -->
 
@@ -286,12 +333,21 @@ make docker-build
 
 `Makefile` provides some useful targets to help you work with this project:
 
+- `init`: Download tool dependencies and setup `GOPRIVATE` environment variable.
+
+  ```bash
+  make init
+  ```
+
+> [!NOTE]
+> Setup `GOPRIVATE` env for vscode not automatically going to
+> [pkg.go.dev](https://pkg.go.dev/) for private modules.
+
 - `download-deps`: Download all tool dependencies.
 
   ```bash
   make download-deps
   ```
-
 
 - `gen-proto`: Generate gRPC and gRPC gateway from proto files.
 

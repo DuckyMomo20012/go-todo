@@ -34,5 +34,9 @@ func NewDb(connString string) *pgxpool.Pool {
 		log.Panic().Err(err).Msg("failed to create db pool")
 	}
 
+	if err := pool.Ping(context.Background()); err != nil {
+		log.Panic().Err(err).Msg("failed to ping db")
+	}
+
 	return pool
 }

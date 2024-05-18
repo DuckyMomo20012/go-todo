@@ -53,6 +53,18 @@ func UpdateContext(update func(c zerolog.Context) zerolog.Context) {
 	log.UpdateContext(update)
 }
 
-func SetService(name string) {
-	log = log.With().Str("service", name).Logger()
+func WithService(serviceName string) zerolog.Logger {
+	log = log.With().Str("service", serviceName).Logger()
+
+	return log
+}
+
+func WithBasicSampler() zerolog.Logger {
+	samplingRate := viper.GetUint32("LOG_SAMPLE_RATE")
+
+	log = log.Sample(&zerolog.BasicSampler{
+		N: samplingRate,
+	})
+
+	return log
 }

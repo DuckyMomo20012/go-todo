@@ -1,8 +1,6 @@
 package task
 
 import (
-	"fmt"
-
 	taskv1 "github.com/DuckyMomo20012/go-todo/internal/common/genproto/task/v1"
 	cfg "github.com/DuckyMomo20012/go-todo/internal/common/libs/config"
 	"github.com/DuckyMomo20012/go-todo/internal/common/libs/db"
@@ -49,17 +47,9 @@ func startTaskServer() {
 
 	// NOTE: Load config before setting up logger
 	logger.Get()
-	logger.SetService("task")
+	logger.WithService("task")
 
-	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		config.DBUser,
-		config.DBPassword,
-		config.DBHost,
-		config.DBPort,
-		config.DBName,
-	)
-
-	dbpool := db.NewDb(connString)
+	dbpool := db.NewDb(config.DBUrl)
 
 	defer dbpool.Close()
 
