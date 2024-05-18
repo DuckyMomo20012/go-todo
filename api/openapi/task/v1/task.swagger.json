@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Go Todo task API",
-    "description": "Task server API",
+    "title": "Task server API",
+    "description": "Go Todo task API",
     "version": "1.1.0",
     "contact": {
       "name": "DuckyMomo20012",
