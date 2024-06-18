@@ -1,30 +1,27 @@
-# buf.gen.yaml
-version: v1
+version: v2
 managed:
   enabled: true
-  go_package_prefix:
-    # <module_name>   : name in go.mod
-    # <relative_path> : where generated code should be output
-    default: github.com/DuckyMomo20012/go-todo/internal/common/genproto
-    # Remove `except` field if googleapis is not used
-    except:
-      - buf.build/googleapis/googleapis
+  # Remove `disable` field if googleapis is not use
+  disable:
+    - file_option: go_package
+      module: buf.build/googleapis/googleapis
+    - file_option: go_package
       # NOTE: Set this so the import not resolve to current repo
-      - buf.build/grpc-ecosystem/grpc-gateway
+      module: buf.build/grpc-ecosystem/grpc-gateway
+  override:
+    - file_option: go_package_prefix
+      value: github.com/DuckyMomo20012/go-todo/internal/common/genproto
 plugins:
-  - plugin: buf.build/grpc/go:v1.3.0
+  - remote: buf.build/grpc/go:v1.3.0
     out: ../../internal/common/genproto
-    opt:
-      - paths=source_relative
-  # dependencies
-  - plugin: buf.build/protocolbuffers/go:v1.33.0
+    opt: paths=source_relative
+  - remote: buf.build/protocolbuffers/go:v1.33.0
     out: ../../internal/common/genproto
-    opt:
-      - paths=source_relative
-  - plugin: buf.build/grpc-ecosystem/gateway:v2.19.1
+    opt: paths=source_relative
+  - remote: buf.build/grpc-ecosystem/gateway:v2.19.1
     out: ../../internal/common/genproto
     opt:
       - paths=source_relative
       - generate_unbound_methods=true
-  - plugin: buf.build/grpc-ecosystem/openapiv2:v2.19.1
+  - remote: buf.build/grpc-ecosystem/openapiv2:v2.19.1
     out: ../openapi
