@@ -1,1 +1,2 @@
 brew "sqlfluff" # SQL linter & formatter
+brew "golang-migrate" # Database migration tool
