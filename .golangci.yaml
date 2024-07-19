@@ -47,7 +47,7 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - structcheck
+    # - structcheck
     # - stylecheck
     - tparallel
     - thelper
@@ -55,7 +55,7 @@ linters:
     - unconvert
     - unparam
     - unused
-    - varcheck
+    # - varcheck
     - wsl
     - whitespace
 
